@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.16)
+project(software-challenge-2022)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O3")
+
+add_executable(main src/main.cpp src/alphabeta.cpp src/gamestate.cpp src/network.cpp)
+target_link_libraries(main pugixml)
+target_link_libraries(main pthread)
+
+add_executable(perft utils/perft.cpp src/gamestate.cpp)
+set_target_properties(perft PROPERTIES COMPILE_FLAGS -fno-access-control)
+
+add_executable(test utils/test.cpp src/alphabeta.cpp src/gamestate.cpp)
