@@ -51,4 +51,5 @@ struct Move {
 
 struct SaveState {
     Field from, to;
+    int score;
 };

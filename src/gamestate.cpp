@@ -164,12 +164,25 @@ SaveState GameState::makeMove(const Move &move) {
     Field &from = board[move.from.square];
     Field &to = board[move.to.square];
 
-    SaveState saveState{from, to};
+    const SaveState saveState{from, to, score};
 
-    to.occupied = !(to.occupied && to.stacked);
-    to.color = from.color;
-    to.stackedPieceType = to.pieceType;
-    to.pieceType = from.pieceType;
+    const uint8_t oppBaseline = turn % 2 ? 0 : 7;
+
+    int points = (
+        (to.occupied && (from.stacked || to.stacked)) +
+        (move.to.coords.x == oppBaseline && from.pieceType != ROBBE)
+    );
+
+    if (points > 0) {
+        to.occupied = false;
+        score += turn % 2 ? points : -points;
+    } else {
+        to.stacked = to.occupied || from.stacked;
+        to.occupied = true;
+        to.color = from.color;
+        to.stackedPieceType = to.pieceType;
+        to.pieceType = from.pieceType;
+    }
 
     from.pieceType = from.stackedPieceType;
     from.color = !from.color;
@@ -184,6 +197,7 @@ SaveState GameState::makeMove(const Move &move) {
 void GameState::unmakeMove(const Move &move, const SaveState &saveState) {
     board[move.from.square] = saveState.from;
     board[move.to.square] = saveState.to;
+    score = saveState.score;
 
     --turn;
 }
