@@ -24,7 +24,6 @@ struct Field {
     Color color:2;
     PieceType pieceType:2;
     bool stacked:1;
-    PieceType stackedPieceType:2;
 };
 
 enum Direction {

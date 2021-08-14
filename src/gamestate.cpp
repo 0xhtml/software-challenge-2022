@@ -180,14 +180,10 @@ SaveState GameState::makeMove(const Move &move) {
         to.stacked = to.occupied || from.stacked;
         to.occupied = true;
         to.color = from.color;
-        to.stackedPieceType = to.pieceType;
         to.pieceType = from.pieceType;
     }
 
-    from.pieceType = from.stackedPieceType;
-    from.color = !from.color;
-    from.occupied = from.stacked;
-    from.stacked = false;
+    from.occupied = false;
 
     ++turn;
 
