@@ -56,9 +56,9 @@ GameState::GameState(const std::string fen) {
     turn = std::stoi(fen.substr(fen.find(' ')));
 }
 
-#define pushDestination(from, to) \
-    if (!board[(to).square].occupied || board[(to).square].color != color) { \
-        moves.push_back({from, to}); \
+#define pushMove(to) \
+    if (!board[square + to].occupied || board[square + to].color != color) { \
+        moves.push_back({pos, square + to}); \
     }
 
 std::vector<Move> GameState::getPossibleMoves() const {
@@ -70,7 +70,7 @@ std::vector<Move> GameState::getPossibleMoves() const {
     const uint8_t oppBaseline = color ? 0 : 7;
 
     for (int square = 0; square < FIELD_COUNT; ++square) {
-        const Field field = board[square];
+        const Field &field = board[square];
 
         if (!field.occupied) continue;
         if (field.color != color) continue;
@@ -79,79 +79,45 @@ std::vector<Move> GameState::getPossibleMoves() const {
 
         switch (field.pieceType) {
             case HERZMUSCHEL:
-                if (pos.coords.x == oppBaseline) break;
-
-                if (pos.coords.y < 7) {
-                    pushDestination(pos, pos + forward + LEFT);
+                if (pos.coords.x != oppBaseline) {
+                    if (pos.coords.y < 7) pushMove(forward + LEFT);
+                    if (pos.coords.y > 0) pushMove(forward + RIGHT);
                 }
-                if (pos.coords.y > 0) {
-                    pushDestination(pos, pos + forward + RIGHT);
-                }
-
                 break;
             case MOEWE:
-                if (pos.coords.x < 7) {
-                    pushDestination(pos, pos + UP);
-                }
-                if (pos.coords.x > 0) {
-                    pushDestination(pos, pos + DOWN);
-                }
-                if (pos.coords.y < 7) {
-                    pushDestination(pos, pos + LEFT);
-                }
-                if (pos.coords.y > 0) {
-                    pushDestination(pos, pos + RIGHT);
-                }
-
+                if (pos.coords.x < 7) pushMove(UP);
+                if (pos.coords.x > 0) pushMove(DOWN);
+                if (pos.coords.y < 7) pushMove(LEFT);
+                if (pos.coords.y > 0) pushMove(RIGHT);
                 break;
             case SEESTERN:
-                if (pos.coords.x != oppBaseline) {
-                    pushDestination(pos, pos + forward);
+                if (pos.coords.x != oppBaseline) pushMove(forward);
+                if (pos.coords.x < 7) {
+                    if (pos.coords.y < 7) pushMove(UP + LEFT);
+                    if (pos.coords.y > 0) pushMove(UP + RIGHT);
                 }
-
-                if (pos.coords.x < 7 && pos.coords.y < 7) {
-                    pushDestination(pos, pos + UP + LEFT);
+                if (pos.coords.x > 0) {
+                    if (pos.coords.y < 7) pushMove(DOWN + LEFT);
+                    if (pos.coords.y > 0) pushMove(DOWN + RIGHT);
                 }
-                if (pos.coords.x < 7 && pos.coords.y > 0) {
-                    pushDestination(pos, pos + UP + RIGHT);
-                }
-                if (pos.coords.x > 0 && pos.coords.y < 7) {
-                    pushDestination(pos, pos + DOWN + LEFT);
-                }
-                if (pos.coords.x > 0 && pos.coords.y > 0) {
-                    pushDestination(pos, pos + DOWN + RIGHT);
-                }
-
                 break;
             case ROBBE:
-                if (pos.coords.x < 6 && pos.coords.y < 7) {
-                    pushDestination(pos, pos + UP + UP + LEFT);
+                if (pos.coords.x < 6) {
+                    if (pos.coords.y < 7) pushMove(UP + UP + LEFT);
+                    if (pos.coords.y > 0) pushMove(UP + UP + RIGHT);
                 }
-                if (pos.coords.x < 6 && pos.coords.y > 0) {
-                    pushDestination(pos, pos + UP + UP + RIGHT);
+                if (pos.coords.x > 1) {
+                    if (pos.coords.y < 7) pushMove(DOWN + DOWN + LEFT);
+                    if (pos.coords.y > 0) pushMove(DOWN + DOWN + RIGHT);
                 }
-
-                if (pos.coords.x > 1 && pos.coords.y < 7) {
-                    pushDestination(pos, pos + DOWN + DOWN + LEFT);
+                if (pos.coords.x < 7) {
+                    if (pos.coords.y < 6) pushMove(UP + LEFT + LEFT);
+                    if (pos.coords.y > 1) pushMove(UP + RIGHT + RIGHT);
                 }
-                if (pos.coords.x > 1 && pos.coords.y > 0) {
-                    pushDestination(pos, pos + DOWN + DOWN + RIGHT);
+                if (pos.coords.x > 0) {
+                    if (pos.coords.y < 6) pushMove(DOWN + LEFT + LEFT);
+                    if (pos.coords.y > 1) pushMove(DOWN + RIGHT + RIGHT);
                 }
-
-                if (pos.coords.x < 7 && pos.coords.y < 6) {
-                    pushDestination(pos, pos + UP + LEFT + LEFT);
-                }
-                if (pos.coords.x < 7 && pos.coords.y > 1) {
-                    pushDestination(pos, pos + UP + RIGHT + RIGHT);
-                }
-
-                if (pos.coords.x > 0 && pos.coords.y < 6) {
-                    pushDestination(pos, pos + DOWN + LEFT + LEFT);
-                }
-                if (pos.coords.x > 0 && pos.coords.y > 1) {
-                    pushDestination(pos, pos + DOWN + RIGHT + RIGHT);
-                }
-
                 break;
         }
     }

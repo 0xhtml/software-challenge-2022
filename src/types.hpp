@@ -42,7 +42,6 @@ union Position {
 
     Position() { square = 0; };
     Position(int s) { square = s; };
-    Position operator+(Direction d) const { return {uint8_t(square + d)}; };
 };
 
 struct Move {
