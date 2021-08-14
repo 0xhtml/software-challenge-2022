@@ -12,8 +12,6 @@ private:
     int turn = 0;
     Field board[FIELD_COUNT]{};
 
-    void pushDestination(std::vector<Move> &moves, Position from, Position to) const;
-
 public:
     GameState(const std::string fen);
 

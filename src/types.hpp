@@ -28,16 +28,16 @@ struct Field {
 };
 
 enum Direction {
-    UP = 8,
+    UP = 1,
     DOWN = -UP,
-    LEFT = 1,
+    LEFT = 8,
     RIGHT = -LEFT
 };
 
 union Position {
     uint8_t square:6;
     struct {
-        uint8_t y:3, x:3;
+        uint8_t x:3, y:3;
     } coords;
 
     Position() { square = 0; };

@@ -57,19 +57,18 @@ GameState::GameState(const std::string fen) {
     turn = std::stoi(fen.substr(fen.find(' ')));
 }
 
-void GameState::pushDestination(std::vector<Move> &moves, Position from, Position to) const {
-    if (!board[to.square].occupied || board[to.square].color != turn % 2) {
-        moves.push_back({from, to});
+#define pushDestination(from, to) \
+    if (!board[(to).square].occupied || board[(to).square].color != color) { \
+        moves.push_back({from, to}); \
     }
-}
 
 std::vector<Move> GameState::getPossibleMoves() const {
     std::vector<Move> moves{};
 
-    int color = turn % 2;
+    const int color = turn % 2;
 
-    Direction forward = color ? DOWN : UP;
-    uint8_t oppBaseline = color ? 0 : 7;
+    const Direction forward = color ? DOWN : UP;
+    const uint8_t oppBaseline = color ? 0 : 7;
 
     for (int square = 0; square < FIELD_COUNT; ++square) {
         const Field field = board[square];
@@ -83,75 +82,75 @@ std::vector<Move> GameState::getPossibleMoves() const {
             case HERZMUSCHEL:
                 if (pos.coords.x == oppBaseline) break;
 
-                if (pos.coords.y != 7) {
-                    pushDestination(moves, pos, pos + forward + LEFT);
+                if (pos.coords.y < 7) {
+                    pushDestination(pos, pos + forward + LEFT);
                 }
-                if (pos.coords.y != 0) {
-                    pushDestination(moves, pos, pos + forward + RIGHT);
+                if (pos.coords.y > 0) {
+                    pushDestination(pos, pos + forward + RIGHT);
                 }
 
                 break;
             case MOEWE:
-                if (pos.coords.x != 8) {
-                    pushDestination(moves, pos, pos + UP);
+                if (pos.coords.x < 7) {
+                    pushDestination(pos, pos + UP);
                 }
-                if (pos.coords.x != 0) {
-                    pushDestination(moves, pos, pos + DOWN);
+                if (pos.coords.x > 0) {
+                    pushDestination(pos, pos + DOWN);
                 }
-                if (pos.coords.y != 7) {
-                    pushDestination(moves, pos, pos + LEFT);
+                if (pos.coords.y < 7) {
+                    pushDestination(pos, pos + LEFT);
                 }
-                if (pos.coords.y != 0) {
-                    pushDestination(moves, pos, pos + RIGHT);
+                if (pos.coords.y > 0) {
+                    pushDestination(pos, pos + RIGHT);
                 }
 
                 break;
             case SEESTERN:
                 if (pos.coords.x != oppBaseline) {
-                    pushDestination(moves, pos, pos + forward);
+                    pushDestination(pos, pos + forward);
                 }
 
-                if (pos.coords.x != 7 && pos.coords.y != 7) {
-                    pushDestination(moves, pos, pos + UP + LEFT);
+                if (pos.coords.x < 7 && pos.coords.y < 7) {
+                    pushDestination(pos, pos + UP + LEFT);
                 }
-                if (pos.coords.x != 7 && pos.coords.y != 0) {
-                    pushDestination(moves, pos, pos + UP + RIGHT);
+                if (pos.coords.x < 7 && pos.coords.y > 0) {
+                    pushDestination(pos, pos + UP + RIGHT);
                 }
-                if (pos.coords.x != 0 && pos.coords.y != 7) {
-                    pushDestination(moves, pos, pos + DOWN + LEFT);
+                if (pos.coords.x > 0 && pos.coords.y < 7) {
+                    pushDestination(pos, pos + DOWN + LEFT);
                 }
-                if (pos.coords.x != 0 && pos.coords.y != 0) {
-                    pushDestination(moves, pos, pos + DOWN + RIGHT);
+                if (pos.coords.x > 0 && pos.coords.y > 0) {
+                    pushDestination(pos, pos + DOWN + RIGHT);
                 }
 
                 break;
             case ROBBE:
-                if (pos.coords.x < 6 && pos.coords.y != 7) {
-                    pushDestination(moves, pos, pos + UP + UP + LEFT);
+                if (pos.coords.x < 6 && pos.coords.y < 7) {
+                    pushDestination(pos, pos + UP + UP + LEFT);
                 }
-                if (pos.coords.x < 6 && pos.coords.y != 0) {
-                    pushDestination(moves, pos, pos + UP + UP + RIGHT);
-                }
-
-                if (pos.coords.x > 1 && pos.coords.y != 7) {
-                    pushDestination(moves, pos, pos + DOWN + DOWN + LEFT);
-                }
-                if (pos.coords.x > 1 && pos.coords.y != 0) {
-                    pushDestination(moves, pos, pos + DOWN + DOWN + RIGHT);
+                if (pos.coords.x < 6 && pos.coords.y > 0) {
+                    pushDestination(pos, pos + UP + UP + RIGHT);
                 }
 
-                if (pos.coords.x != 7 && pos.coords.y < 6) {
-                    pushDestination(moves, pos, pos + UP + LEFT + LEFT);
+                if (pos.coords.x > 1 && pos.coords.y < 7) {
+                    pushDestination(pos, pos + DOWN + DOWN + LEFT);
                 }
-                if (pos.coords.x != 7 && pos.coords.y > 1) {
-                    pushDestination(moves, pos, pos + UP + RIGHT + RIGHT);
+                if (pos.coords.x > 1 && pos.coords.y > 0) {
+                    pushDestination(pos, pos + DOWN + DOWN + RIGHT);
                 }
 
-                if (pos.coords.x != 0 && pos.coords.y < 6) {
-                    pushDestination(moves, pos, pos + DOWN + LEFT + LEFT);
+                if (pos.coords.x < 7 && pos.coords.y < 6) {
+                    pushDestination(pos, pos + UP + LEFT + LEFT);
                 }
-                if (pos.coords.x != 0 && pos.coords.y > 1) {
-                    pushDestination(moves, pos, pos + DOWN + RIGHT + RIGHT);
+                if (pos.coords.x < 7 && pos.coords.y > 1) {
+                    pushDestination(pos, pos + UP + RIGHT + RIGHT);
+                }
+
+                if (pos.coords.x > 0 && pos.coords.y < 6) {
+                    pushDestination(pos, pos + DOWN + LEFT + LEFT);
+                }
+                if (pos.coords.x > 0 && pos.coords.y > 1) {
+                    pushDestination(pos, pos + DOWN + RIGHT + RIGHT);
                 }
 
                 break;
