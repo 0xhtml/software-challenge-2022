@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 
 #include "../src/gamestate.hpp"
@@ -18,22 +19,20 @@ int perft(GameState &gameState, const int depth) {
 }
 
 int main(int argc, char **argv) {
-    std::string fen;
+    while (true) {
+        std::string inp;
+        getline(std::cin, inp);
 
-    if (argc == 1) {
-        fen = "HHMMRRSS/8/8/8/8/8/8/hhmmrrss";
-    } else if (argc == 2) {
-        fen.append(argv[1]);
-    } else {
-        printf("usage: %s <fen>", argv[0]);
-        return 1;
+        int a = std::stoi(inp.substr(inp.find_last_of(" ")));
+
+        GameState state{inp.substr(0, inp.find_last_of(" "))};
+
+        int g = perft(state, 3);
+
+        if (g != a) {
+            printf("%s -> %i\n", inp.data(), g);
+        }
     }
 
-    GameState gameState{fen};
-
-    for (int depth = 1; ; ++depth) {
-        printf("%i | %i\n", depth, perft(gameState, depth));
-    }
-
-    return 1;
+    return 0;
 }

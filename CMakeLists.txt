@@ -11,6 +11,5 @@ target_link_libraries(main pugixml)
 target_link_libraries(main pthread)
 
 add_executable(perft utils/perft.cpp src/gamestate.cpp)
-set_target_properties(perft PROPERTIES COMPILE_FLAGS -fno-access-control)
 
 add_executable(test utils/test.cpp src/alphabeta.cpp src/gamestate.cpp)
