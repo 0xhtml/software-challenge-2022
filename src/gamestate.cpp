@@ -1,7 +1,6 @@
 #include "gamestate.hpp"
 
 #include <algorithm>
-#include <cstring>
 #include <pugixml.hpp>
 #include <string>
 #include <vector>
@@ -164,9 +163,10 @@ SaveState GameState::makeMove(const Move &move) {
     Field &from = board[move.from.square];
     Field &to = board[move.to.square];
 
-    const SaveState saveState{from, to, score};
+    int color = turn % 2;
+    uint8_t oppBaseline = color ? 0 : 7;
 
-    const uint8_t oppBaseline = turn % 2 ? 0 : 7;
+    SaveState saveState{from, to, score[color]};
 
     int points = (
         (to.occupied && (from.stacked || to.stacked)) +
@@ -175,7 +175,7 @@ SaveState GameState::makeMove(const Move &move) {
 
     if (points > 0) {
         to.occupied = false;
-        score += turn % 2 ? points : -points;
+        score[color] += points;
     } else {
         to.stacked = to.occupied || from.stacked;
         to.occupied = true;
@@ -191,9 +191,9 @@ SaveState GameState::makeMove(const Move &move) {
 }
 
 void GameState::unmakeMove(const Move &move, const SaveState &saveState) {
+    --turn;
+
     board[move.from.square] = saveState.from;
     board[move.to.square] = saveState.to;
-    score = saveState.score;
-
-    --turn;
+    score[turn % 2] = saveState.score;
 }

@@ -10,7 +10,7 @@
 class GameState {
 private:
     int turn = 0;
-    int score = 0;
+    int score[COLOR_COUNT]{};
     Field board[FIELD_COUNT]{};
 
 public:

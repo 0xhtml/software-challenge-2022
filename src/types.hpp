@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#define COLOR_COUNT 2
 enum Color : uint8_t {
     RED,
     BLUE
