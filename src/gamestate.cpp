@@ -1,6 +1,7 @@
 #include "gamestate.hpp"
 
 #include <algorithm>
+#include <cstring>
 #include <pugixml.hpp>
 #include <string>
 #include <vector>
@@ -20,6 +21,10 @@ GameState::GameState(const std::string fen) {
             position.coords.y = 0;
             position.coords.x++;
             continue;
+        }
+
+        if (c == ' ') {
+            break;
         }
 
         board[position.square].occupied = true;
@@ -48,6 +53,8 @@ GameState::GameState(const std::string fen) {
 
         position.coords.y++;
     }
+
+    turn = std::stoi(fen.substr(fen.find(' ')));
 }
 
 void GameState::pushDestination(std::vector<Move> &moves, Position from, Position to) const {
