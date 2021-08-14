@@ -12,13 +12,13 @@ GameState::GameState(const std::string fen) {
 
     for (char c : fen) {
         if (isdigit(c)) {
-            position.coords.x += c - 48;
+            position.coords.y += c - 48;
             continue;
         }
 
         if (c == '/') {
-            position.coords.x = 0;
-            position.coords.y++;
+            position.coords.y = 0;
+            position.coords.x++;
             continue;
         }
 
@@ -46,7 +46,7 @@ GameState::GameState(const std::string fen) {
                 break;
         }
 
-        position.coords.x++;
+        position.coords.y++;
     }
 }
 
