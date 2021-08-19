@@ -1,6 +1,7 @@
 #include "gamestate.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <pugixml.hpp>
 #include <string>
 #include <vector>
@@ -135,11 +136,17 @@ bool GameState::isOver() const {
 }
 
 SaveState GameState::makeMove(const Move &move) {
+    assert(move.from.square != move.to.square);
+
     Field &from = board[move.from.square];
     Field &to = board[move.to.square];
 
     int color = turn % 2;
     uint8_t oppBaseline = color ? 0 : 7;
+
+    assert(from.occupied);
+    assert(from.color == color);
+    assert(!to.occupied || to.color != color);
 
     SaveState saveState{from, to, score[color]};
 
@@ -166,7 +173,11 @@ SaveState GameState::makeMove(const Move &move) {
 }
 
 void GameState::unmakeMove(const Move &move, const SaveState &saveState) {
+    assert(move.from.square != move.to.square);
+
     --turn;
+
+    assert(saveState.from.color == turn % 2);
 
     board[move.from.square] = saveState.from;
     board[move.to.square] = saveState.to;
