@@ -54,7 +54,7 @@ Move AlphaBeta::iterativeDeepening(GameState &gameState) {
     Move move{};
 
     for (int depth = 1; depth < 5; ++depth) {
-        move = alphaBetaRoot(gameState, depth, INT_MIN, INT_MAX);
+        move = alphaBetaRoot(gameState, depth, -INT_MAX, INT_MAX);
     }
 
     return move;
