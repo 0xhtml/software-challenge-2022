@@ -1,5 +1,6 @@
 #include "alphabeta.hpp"
 
+#include <cassert>
 #include <climits>
 
 #include "evaluation.hpp"
@@ -7,9 +8,13 @@
 #include "types.hpp"
 
 int AlphaBeta::alphaBeta(GameState &gameState, const int depth, int alpha, int beta) {
-    if (depth <= 0) return Evaluation::evaluate(gameState);
+    if (depth <= 0 || gameState.isOver()) return Evaluation::evaluate(gameState);
 
-    for (Move move : gameState.getPossibleMoves()) {
+    std::vector<Move> moves = gameState.getPossibleMoves();
+
+    if (moves.size() == 0) return -INT_MAX;
+
+    for (Move move : moves) {
         SaveState saveState = gameState.makeMove(move);
         int score = -alphaBeta(gameState, depth - 1, -beta, -alpha);
         gameState.unmakeMove(move, saveState);
@@ -24,7 +29,11 @@ int AlphaBeta::alphaBeta(GameState &gameState, const int depth, int alpha, int b
 Move AlphaBeta::alphaBetaRoot(GameState &gameState, const int depth, int alpha, int beta) {
     Move bestMove{};
 
-    for (Move move : gameState.getPossibleMoves()) {
+    std::vector<Move> moves = gameState.getPossibleMoves();
+
+    assert(moves.size() != 0);
+
+    for (Move move : moves) {
         SaveState saveState = gameState.makeMove(move);
         int score = -alphaBeta(gameState, depth - 1, -beta, -alpha);
         gameState.unmakeMove(move, saveState);

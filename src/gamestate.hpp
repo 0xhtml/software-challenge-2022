@@ -17,6 +17,8 @@ public:
 
     std::vector<Move> getPossibleMoves() const;
 
+    bool isOver() const;
+
     SaveState makeMove(const Move &move);
 
     void unmakeMove(const Move &move, const SaveState &saveState);

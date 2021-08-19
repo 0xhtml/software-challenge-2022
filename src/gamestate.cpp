@@ -125,6 +125,15 @@ std::vector<Move> GameState::getPossibleMoves() const {
     return moves;
 }
 
+bool GameState::isOver() const {
+    if (turn > 60) return true;
+    if (turn % 2) return false;
+    for (int color = 0; color < COLOR_COUNT; ++color) {
+        if (score[color] >= 2) return true;
+    }
+    return false;
+}
+
 SaveState GameState::makeMove(const Move &move) {
     Field &from = board[move.from.square];
     Field &to = board[move.to.square];
