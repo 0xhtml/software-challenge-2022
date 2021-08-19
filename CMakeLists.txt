@@ -13,3 +13,4 @@ target_link_libraries(main pthread)
 add_executable(perft utils/perft.cpp src/gamestate.cpp)
 
 add_executable(test utils/test.cpp src/alphabeta.cpp src/evaluation.cpp src/gamestate.cpp)
+target_link_libraries(test pthread)

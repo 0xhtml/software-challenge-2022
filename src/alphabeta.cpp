@@ -46,7 +46,6 @@ Move AlphaBeta::alphaBetaRoot(GameState &gameState, const int depth, int alpha, 
         }
     }
 
-    printf("%i (%i|%i)->(%i|%i)\n", depth, bestMove.from.coords.x, bestMove.from.coords.y, bestMove.to.coords.x, bestMove.to.coords.y);
 
     return bestMove;
 }
