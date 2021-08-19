@@ -2,11 +2,12 @@
 
 #include <climits>
 
+#include "evaluation.hpp"
 #include "gamestate.hpp"
 #include "types.hpp"
 
 int AlphaBeta::alphaBeta(GameState &gameState, const int depth, int alpha, int beta) {
-    if (depth <= 0) return 0;
+    if (depth <= 0) return Evaluation::evaluate(gameState);
 
     for (Move move : gameState.getPossibleMoves()) {
         SaveState saveState = gameState.makeMove(move);

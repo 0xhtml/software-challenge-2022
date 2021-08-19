@@ -8,12 +8,11 @@
 #define FIELD_COUNT 64
 
 class GameState {
-private:
+public:
+    Field board[FIELD_COUNT]{};
     int turn = 0;
     int score[COLOR_COUNT]{};
-    Field board[FIELD_COUNT]{};
 
-public:
     GameState(const std::string fen);
 
     std::vector<Move> getPossibleMoves() const;
