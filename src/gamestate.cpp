@@ -8,7 +8,25 @@
 
 #include "types.hpp"
 
+#define RANDOM_SEED_A 1103515495
+#define RANDOM_SEED_B 12345
+
 GameState::GameState(const std::string fen) {
+    uint64_t rand = 1;
+    for (int square = 0; square < FIELD_COUNT; ++square) {
+        for (int color = 0; color < COLOR_COUNT; ++color) {
+            for (int piece = 0; piece < PIECE_TYPE_COUNT; ++piece) {
+                rand = rand * RANDOM_SEED_A + RANDOM_SEED_B;
+                zobristPiece[square][color][piece] = rand;
+            }
+        }
+    }
+    for (int square = 0; square < FIELD_COUNT; ++square) {
+        rand = rand * RANDOM_SEED_A + RANDOM_SEED_B;
+        zobristStacked[square] = rand;
+    }
+    zobristColor = rand * RANDOM_SEED_A + RANDOM_SEED_B;
+
     Position position{};
 
     for (char c : fen) {
@@ -51,10 +69,14 @@ GameState::GameState(const std::string fen) {
                 break;
         }
 
+        const Field &field = board[position.square];
+        hash ^= zobristPiece[position.square][field.color][field.pieceType];
+
         position.coords.y++;
     }
 
     turn = std::stoi(fen.substr(fen.find(' ')));
+    if (turn % 2 == BLUE) hash ^= zobristColor;
 }
 
 #define pushMove(to) \
@@ -148,7 +170,7 @@ SaveState GameState::makeMove(const Move &move) {
     assert(from.color == color);
     assert(!to.occupied || to.color != color);
 
-    SaveState saveState{from, to, score[color]};
+    SaveState saveState{from, to, score[color], hash};
 
     int points = (
         (to.occupied && (from.stacked || to.stacked)) +
@@ -156,18 +178,33 @@ SaveState GameState::makeMove(const Move &move) {
     );
 
     if (points > 0) {
-        to.occupied = false;
+        if (to.occupied) {
+            to.occupied = false;
+            hash ^= zobristPiece[move.to.square][to.color][to.pieceType];
+            if (to.stacked) hash ^= zobristStacked[move.to.square];
+        }
         score[color] += points;
     } else {
+        if (to.occupied) {
+            hash ^= zobristPiece[move.to.square][to.color][to.pieceType];
+        }
+
         to.stacked = to.occupied || from.stacked;
+        if (to.stacked) hash ^= zobristStacked[move.to.square];
+
         to.occupied = true;
         to.color = from.color;
         to.pieceType = from.pieceType;
+
+        hash ^= zobristPiece[move.to.square][to.color][to.pieceType];
     }
 
     from.occupied = false;
+    hash ^= zobristPiece[move.from.square][from.color][from.pieceType];
+    if (from.stacked) hash ^= zobristStacked[move.from.square];
 
     ++turn;
+    hash ^= zobristColor;
 
     return saveState;
 }
@@ -182,4 +219,5 @@ void GameState::unmakeMove(const Move &move, const SaveState &saveState) {
     board[move.from.square] = saveState.from;
     board[move.to.square] = saveState.to;
     score[turn % 2] = saveState.score;
+    hash = saveState.hash;
 }
