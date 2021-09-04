@@ -1,15 +1,15 @@
 #pragma once
 
 #include <cstdint>
+#include <chrono>
+
+typedef std::chrono::time_point<std::chrono::system_clock> Time;
+typedef std::chrono::milliseconds MS;
 
 #define COLOR_COUNT 2
 enum Color : uint8_t {
     RED,
     BLUE
-};
-inline Color operator!(Color c) {
-    if (c == RED) return BLUE;
-    return RED;
 };
 
 #define PIECE_TYPE_COUNT 4
@@ -42,10 +42,14 @@ union Position {
 
     Position() { square = 0; };
     Position(int s) { square = s; };
+    bool operator==(const Position &p) const { return p.square == square; }
 };
 
 struct Move {
     Position from, to;
+
+    bool operator==(const Move &m) const { return m.from == from && m.to == to; }
+    bool operator!=(const Move &m) const { return !operator==(m); }
 };
 
 struct SaveState {

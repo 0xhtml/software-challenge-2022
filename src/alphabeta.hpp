@@ -6,12 +6,19 @@
 
 class AlphaBeta {
 private:
+    GameState &gameState;
     TranspositionTable transpositionTable{};
+    Time start;
+    bool timeOut;
 
-    int alphaBeta(GameState &gameState, const int depth, int alpha, int beta);
+    bool checkTimeOut();
 
-    Move alphaBetaRoot(GameState &gameState, const int depth, int alpha, int beta);
+    int alphaBeta(const int depth, int alpha, const int beta);
+
+    Move alphaBetaRoot(const int depth, int alpha, const int beta);
 
 public:
-    Move iterativeDeepening(GameState &gameState);
+    AlphaBeta(GameState &gameState);
+
+    Move iterativeDeepening(const Time start);
 };
