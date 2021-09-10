@@ -7,7 +7,7 @@
 #include "../src/alphabeta.hpp"
 #include "../src/gamestate.hpp"
 
-#define GAME_COUNT 50000
+#define GAME_COUNT 1600
 #define THREAD_COUNT 16
 
 double evalGame(const GameState &gameState) {
@@ -50,23 +50,20 @@ double playGame() {
         int j = pieceDist(mt19937);
         int k = pieceDist(mt19937);
         std::swap(fen[j], fen[k]);
-    }
-
-    for (int i = 21; i < 29; ++i) {
-        int j = pieceDist(mt19937) + 21;
-        int k = pieceDist(mt19937) + 21;
-        std::swap(fen[i], fen[j]);
+        j = pieceDist(mt19937) + 21;
+        k = pieceDist(mt19937) + 21;
+        std::swap(fen[j], fen[k]);
     }
 
     GameState gameState{fen};
 
-    bool start = startDist(mt19937);
+    int start = startDist(mt19937);
 
-    AlphaBeta player{};
+    AlphaBeta player{gameState};
 
     while (!gameState.isOver()) {
-        if (start && gameState.turn % 2 == 0) {
-            gameState.makeMove(player.iterativeDeepening(gameState));
+        if (gameState.turn % 2 == start) {
+            gameState.makeMove(player.iterativeDeepening(std::chrono::system_clock::now()));
         } else {
             std::vector<Move> moves = gameState.getPossibleMoves();
             if (moves.size() == 0) return 1;
@@ -76,32 +73,32 @@ double playGame() {
     }
 
     double eval = evalGame(gameState);
-    if (!start) eval = 1 - eval;
+    if (start == 1) eval = 1 - eval;
 
     return eval;
 }
 
-std::vector<double> worker() {
-    std::vector<double> results;
+typedef std::vector<double> ThreadResults;
 
+ThreadResults worker() {
+    ThreadResults results;
     for (int i = 0; i < GAME_COUNT / THREAD_COUNT; ++i) {
         results.push_back(playGame());
     }
-
     return results;
 }
 
 int main() {
-    std::future<std::vector<double>> threads[THREAD_COUNT];
+    std::future<ThreadResults> threads[THREAD_COUNT];
 
-    for (std::future<std::vector<double>> &thread : threads) {
+    for (std::future<ThreadResults> &thread : threads) {
         thread = std::async(&worker);
     }
 
     std::vector<double> results;
 
-    for (std::future<std::vector<double>> &thread : threads) {
-        std::vector<double> threadResults = thread.get();
+    for (std::future<ThreadResults> &thread : threads) {
+        ThreadResults threadResults = thread.get();
         results.insert(results.end(), threadResults.begin(), threadResults.end());
     }
 
