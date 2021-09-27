@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <chrono>
+#include <cstdint>
 
 typedef std::chrono::time_point<std::chrono::system_clock> Time;
 typedef std::chrono::milliseconds MS;
@@ -40,9 +40,11 @@ union Position {
         uint8_t x:3, y:3;
     } coords;
 
-    Position() { square = 0; };
-    Position(int s) { square = s; };
+    Position() { square = 0; }
+    Position(int s) { square = s; }
+
     bool operator==(const Position &p) const { return p.square == square; }
+    bool operator!=(const Position &p) const { return !operator==(p); }
 };
 
 struct Move {

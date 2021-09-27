@@ -7,28 +7,51 @@
 #include <string>
 
 #include "types.hpp"
+#include "parser.hpp"
 
 Network::Network(const std::string &host, const int port, const std::string &reservation) {
-    connect(host, port);
+    boost::asio::ip::tcp::endpoint endpoint;
+
+    if (host == "localhost") {
+        endpoint.address(boost::asio::ip::make_address("127.0.0.1"));
+    } else {
+        boost::asio::ip::tcp::resolver::query query{host, ""};
+        endpoint = *boost::asio::ip::tcp::resolver(ioService).resolve(query);
+    }
+
+    endpoint.port(port);
+
+    socket.connect(endpoint);
+
+    send("<protocol>");
 
     if (reservation.empty()) {
-        send("<join gameType=\"swc_2022_blokus\"/>");
+        send("<join />");
     } else {
         send("<joinPrepared reservationCode=\"" + reservation + "\" />");
     }
 
-    receiveRoomId();
+    std::string data = receive("<protocol>");
+    if (data.empty()) throw std::runtime_error("Didn't receive <protocol>");
 
-    while (receiveRoomMessage());
+    data = receive("/>");
 
-    receiveProtocolEnd();
+    pugi::xml_document xmlDocument;
+    xmlDocument.load_string(data.data());
 
-    close();
+    pugi::xml_node joined = xmlDocument.child("joined");
+    if (!joined) throw std::runtime_error("Didn't join game");
+
+    roomId = joined.attribute("roomId").value();
 }
 
 void Network::send(const std::string &data) {
     boost::system::error_code error;
     write(socket, boost::asio::buffer(data), error);
+}
+
+void Network::sendRoomPacket(const std::string &data) {
+    send("<room roomId=\"" + roomId +  "\">" + data + "</room>");
 }
 
 std::string Network::receive(const std::string &delim) {
@@ -48,99 +71,45 @@ std::string Network::receive(const std::string &delim) {
     return "";
 }
 
-void Network::connect(const std::string &host, const int port) {
-    boost::asio::ip::tcp::endpoint endpoint;
-
-    if (host == "localhost") {
-        endpoint.address(boost::asio::ip::make_address("127.0.0.1"));
-    } else {
-        boost::asio::ip::tcp::resolver::query query{host, ""};
-        endpoint = *boost::asio::ip::tcp::resolver(ioService).resolve(query);
-    }
-
-    endpoint.port(port);
-
-    socket.connect(endpoint);
-    send("<protocol>");
-
-    assert(receive("<protocol>"));
-}
-
-void Network::receiveRoomId() {
-    std::string data = receive("/>");
-
-    pugi::xml_document xmlDocument;
-    xmlDocument.load_string(data.data());
-
-    pugi::xml_node joined = xmlDocument.child("joined");
-    assert(joined);
-
-    roomId = joined.attribute("roomId").value();
-}
-
-bool Network::receiveRoomMessage() {
+Packet Network::receiveRoomPacket() {
     std::string data = receive("</room>");
 
-    if (data.empty()) {
-        printf("WARN: data is empty, expected room packet\n");
-        return false;
-    }
+    Time time = std::chrono::system_clock::now();
+
+    if (data.empty()) throw std::runtime_error("Didn't receive room message");
 
     pugi::xml_document xmlDocument;
     xmlDocument.load_string(data.data());
 
-    pugi::xml_node xml = xmlDocument.child("room");
+    pugi::xml_node xml = xmlDocument.child("room").child("data");
 
-    pugi::xml_node roomMessageData = xml.child("data");
-    std::string roomMessageDataClass = roomMessageData.attribute("class").value();
-
-    if (roomMessageDataClass == "sc.framework.plugins.protocol.MoveRequest") {
-        // TODO: Call aplhabeta
-    } else if (roomMessageDataClass == "memento") {
-        // TODO: Parse gamestate
-    } else if (roomMessageDataClass == "result") {
-        pugi::xml_node winner = roomMessageData.child("winner");
-
-        printf("INFO: WINNER %s", winner.attribute("displayName").value());
-        printf("%s\n", winner.child("color").text().get());
-
-        return false;
-    } else if (roomMessageDataClass == "error") {
-        printf("ERROR: %s\n", roomMessageData.attribute("message").value());
-        return false;
-    } else {
-        printf("INFO: unknown room message '%s'\n", roomMessageDataClass.c_str());
-    }
-
-    return true;
-}
-
-void Network::receiveProtocolEnd() {
-    std::string data = receive("</protocol>");
-
-    if (data.empty()) {
-        printf("WARN: protocol end is empty\n");
-        return;
-    }
-
-    data.insert(0, "<protocol>");
-
-    pugi::xml_document xmlDocument;
-    xmlDocument.load_string(data.data());
-
-    pugi::xml_node xml = xmlDocument.child("protocol");
-
-    for (pugi::xml_node roomMessage : xml.children("room")) {
-        pugi::xml_node roomMessageData = roomMessage.child("data");
-        std::string roomMessageDataClass = roomMessageData.attribute("class").value();
-        printf("INFO: protocol end includes '%s'\n", roomMessageDataClass.c_str());
-    }
-
-    send("</protocol>");
+    return {xml, xml.attribute("class").value(), time};
 }
 
 void Network::close() {
+    std::string data = receive("</protocol>");
+
+    if (!data.empty()) {
+        data.insert(0, "<protocol>");
+
+        pugi::xml_document xmlDocument;
+        xmlDocument.load_string(data.data());
+
+        pugi::xml_node xml = xmlDocument.child("protocol");
+
+        for (pugi::xml_node roomMessage : xml.children("room")) {
+            pugi::xml_node roomMessageData = roomMessage.child("data");
+            std::string roomMessageDataClass = roomMessageData.attribute("class").value();
+            printf("INFO: protocol end includes '%s'\n", roomMessageDataClass.c_str());
+        }
+
+        send("</protocol>");
+    } else {
+        printf("INFO: protocol end empty\n");
+    }
+
     boost::system::error_code error;
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
+
     socket.close(error);
 }

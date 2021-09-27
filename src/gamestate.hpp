@@ -19,7 +19,9 @@ public:
     int score[COLOR_COUNT]{};
     uint64_t hash;
 
-    GameState(const std::string fen);
+    GameState();
+
+    GameState(const std::string &fen);
 
     std::vector<Move> getPossibleMoves() const;
 

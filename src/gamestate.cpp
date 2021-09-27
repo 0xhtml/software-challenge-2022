@@ -11,7 +11,7 @@
 #define RANDOM_SEED_A 1103515495
 #define RANDOM_SEED_B 12345
 
-GameState::GameState(const std::string fen) {
+GameState::GameState() {
     uint64_t rand = 1;
     for (int square = 0; square < FIELD_COUNT; ++square) {
         for (int color = 0; color < COLOR_COUNT; ++color) {
@@ -26,7 +26,9 @@ GameState::GameState(const std::string fen) {
         zobristStacked[square] = rand;
     }
     zobristColor = rand * RANDOM_SEED_A + RANDOM_SEED_B;
+}
 
+GameState::GameState(const std::string &fen) : GameState() {
     Position position{};
 
     for (char c : fen) {
