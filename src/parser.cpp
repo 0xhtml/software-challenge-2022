@@ -36,16 +36,16 @@ Move Parser::parseMove(const pugi::xml_node &xml) {
     return move;
 }
 
-Color Parser::parseColor(const pugi::xml_attribute &xml) {
-    Color color{};
+Team Parser::parseTeam(const pugi::xml_attribute &xml) {
+    Team team{};
 
     if (std::strcmp(xml.value(), "TWO") == 0) {
-        color = BLUE;
+        team = TWO;
     } else {
         assert(std::strcmp(xml.value(), "ONE") == 0);
     }
 
-    return color;
+    return team;
 }
 
 PieceType Parser::parsePieceType(const pugi::xml_attribute &xml) {
@@ -79,7 +79,7 @@ GameState Parser::parseGameState(const pugi::xml_node &xml) {
         assert(!field.occupied);
 
         field.occupied = true;
-        field.color = parseColor(piece.child("piece").attribute("team"));
+        field.team = parseTeam(piece.child("piece").attribute("team"));
         field.pieceType = parsePieceType(piece.child("piece").attribute("type"));
 
         field.stacked = 0;

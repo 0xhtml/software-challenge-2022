@@ -2,7 +2,7 @@
 
 #include "types.hpp"
 
-const int minorPiecePostionEvaluation[COLOR_COUNT][FIELD_COUNT]{
+const int minorPiecePostionEvaluation[TEAM_COUNT][FIELD_COUNT]{
     {0, 1, 2, 3, 4, 5, 6, 0,
      0, 2, 3, 4, 5, 6, 7, 0,
      0, 2, 3, 4, 5, 6, 7, 0,
@@ -45,10 +45,10 @@ int evaluatePiecePosition(const GameState &gameState) {
         if (field.pieceType == ROBBE) {
             fieldValue = majorPiecePostionEvaluation[square];
         } else {
-            fieldValue = minorPiecePostionEvaluation[field.color][square];
+            fieldValue = minorPiecePostionEvaluation[field.team][square];
         }
 
-        if (field.color == RED) {
+        if (field.team == ONE) {
             value += fieldValue;
         } else {
             value -= fieldValue;
@@ -61,7 +61,7 @@ int evaluatePiecePosition(const GameState &gameState) {
 int Evaluation::evaluate(const GameState &gameState) {
     int value = 0;
 
-    value += (gameState.score[RED] - gameState.score[BLUE]) * 55;
+    value += (gameState.score[ONE] - gameState.score[TWO]) * 55;
     value += evaluatePiecePosition(gameState);
 
     if (gameState.turn % 2) value = -value;

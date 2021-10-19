@@ -9,14 +9,14 @@
 
 class GameState {
 private:
-    uint64_t zobristPiece[FIELD_COUNT][COLOR_COUNT][PIECE_TYPE_COUNT];
+    uint64_t zobristPiece[FIELD_COUNT][TEAM_COUNT][PIECE_TYPE_COUNT];
     uint64_t zobristStacked[FIELD_COUNT];
-    uint64_t zobristColor;
+    uint64_t zobristTeam;
 
 public:
     Field board[FIELD_COUNT]{};
     int turn = 0;
-    int score[COLOR_COUNT]{};
+    int score[TEAM_COUNT]{};
     uint64_t hash;
 
     GameState();

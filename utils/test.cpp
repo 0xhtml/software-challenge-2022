@@ -11,10 +11,10 @@
 #define THREAD_COUNT 16
 
 double evalGame(const GameState &gameState) {
-    if (gameState.score[RED] > gameState.score[BLUE]) return 1;
-    if (gameState.score[RED] < gameState.score[BLUE]) return 0;
+    if (gameState.score[ONE] > gameState.score[TWO]) return 1;
+    if (gameState.score[ONE] < gameState.score[TWO]) return 0;
 
-    std::vector<int> dist[COLOR_COUNT]{};
+    std::vector<int> dist[TEAM_COUNT]{};
 
     for (int x = 0; x < 8; ++x) {
         for (int y = 0; y < 8; ++y) {
@@ -23,16 +23,16 @@ double evalGame(const GameState &gameState) {
             if (!field.occupied) continue;
             if (field.pieceType == ROBBE) continue;
 
-            dist[field.color].push_back(field.color ? 7 - x : x);
+            dist[field.team].push_back(field.team ? 7 - x : x);
         }
     }
 
-    std::sort(dist[RED].begin(), dist[RED].end(), std::greater<>());
-    std::sort(dist[BLUE].begin(), dist[BLUE].end(), std::greater<>());
+    std::sort(dist[ONE].begin(), dist[ONE].end(), std::greater<>());
+    std::sort(dist[TWO].begin(), dist[TWO].end(), std::greater<>());
 
-    for (int i = 0; i < std::min(dist[RED].size(), dist[BLUE].size()); ++i) {
-        if (dist[RED][i] > dist[BLUE][i]) return 1;
-        if (dist[RED][i] < dist[BLUE][i]) return 0;
+    for (int i = 0; i < std::min(dist[ONE].size(), dist[TWO].size()); ++i) {
+        if (dist[ONE][i] > dist[TWO][i]) return 1;
+        if (dist[ONE][i] < dist[TWO][i]) return 0;
     }
 
     return .5;

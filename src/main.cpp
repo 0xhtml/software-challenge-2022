@@ -12,7 +12,7 @@ bool defaultRoomPacketHandle(const Packet &packet) {
         pugi::xml_node winner = packet.data.child("winner");
 
         printf("INFO: WINNER %s", winner.attribute("displayName").value());
-        printf("%s\n", winner.child("color").text().get());
+        printf("%s\n", winner.child("team").text().get());
 
         return true;
     }

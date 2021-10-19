@@ -13,7 +13,7 @@ public:
 
     static Move parseMove(const pugi::xml_node &xml);
 
-    static Color parseColor(const pugi::xml_attribute &xml);
+    static Team parseTeam(const pugi::xml_attribute &xml);
 
     static PieceType parsePieceType(const pugi::xml_attribute &xml);
 

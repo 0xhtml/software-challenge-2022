@@ -6,10 +6,10 @@
 typedef std::chrono::time_point<std::chrono::system_clock> Time;
 typedef std::chrono::milliseconds MS;
 
-#define COLOR_COUNT 2
-enum Color : uint8_t {
-    RED,
-    BLUE
+#define TEAM_COUNT 2
+enum Team : uint8_t {
+    ONE,
+    TWO
 };
 
 #define PIECE_TYPE_COUNT 4
@@ -22,7 +22,7 @@ enum PieceType : uint8_t {
 
 struct Field {
     bool occupied:1;
-    Color color:2;
+    Team team:2;
     PieceType pieceType:2;
     bool stacked:1;
 };
