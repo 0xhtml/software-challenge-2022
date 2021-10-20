@@ -6,9 +6,7 @@
 #include "types.hpp"
 
 int Parser::parseCoord(const pugi::xml_attribute &xml) {
-    int coord;
-
-    coord = xml.as_int(-1);
+    int coord = xml.as_int(-1);
 
     assert(coord >= 0);
     assert(coord < 8);
@@ -64,6 +62,14 @@ PieceType Parser::parsePieceType(const pugi::xml_attribute &xml) {
     return pieceType;
 }
 
+bool Parser::parsePieceStacked(const pugi::xml_attribute &xml) {
+    int count = xml.as_int(-1);
+
+    assert(count == 0 || count == 1);
+
+    return count == 1;
+}
+
 GameState Parser::parseGameState(const pugi::xml_node &xml) {
     GameState gameState{};
 
@@ -79,8 +85,11 @@ GameState Parser::parseGameState(const pugi::xml_node &xml) {
         assert(!field.occupied);
 
         field.occupied = true;
-        field.team = parseTeam(piece.child("piece").attribute("team"));
-        field.pieceType = parsePieceType(piece.child("piece").attribute("type"));
+
+        const pugi::xml_node &child = piece.child("piece");
+        field.team = parseTeam(child.attribute("team"));
+        field.pieceType = parsePieceType(child.attribute("type"));
+        field.stacked = parsePieceStacked(child.attribute("count"));
 
         field.stacked = 0;
     }

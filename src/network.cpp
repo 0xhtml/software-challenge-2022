@@ -26,7 +26,7 @@ Network::Network(const std::string &host, const int port, const std::string &res
     send("<protocol>");
 
     if (reservation.empty()) {
-        send("<join />");
+        send("<join gameType=\"swc_2022_ostseeschach\"/>");
     } else {
         send("<joinPrepared reservationCode=\"" + reservation + "\" />");
     }

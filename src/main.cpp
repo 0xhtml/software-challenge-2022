@@ -8,12 +8,14 @@
 #include "types.hpp"
 
 bool defaultRoomPacketHandle(const Packet &packet) {
+    if (packet.dataClass == "welcomeMessage") {
+        printf("INFO: TEAM %s\n", packet.data.attribute("color").value());
+        return false;
+    }
+
     if (packet.dataClass == "result") {
         pugi::xml_node winner = packet.data.child("winner");
-
-        printf("INFO: WINNER %s", winner.attribute("displayName").value());
-        printf("%s\n", winner.child("team").text().get());
-
+        printf("INFO: WINNER %s\n", winner.attribute("team").value());
         return true;
     }
 
@@ -56,7 +58,16 @@ void gameLoop(Network &network) {
         if (roomPacket.dataClass == "moveRequest") {
             Move move = alphaBeta.iterativeDeepening(roomPacket.time);
             assert(move.from != move.to);
+
             network.sendRoomPacket(Parser::encodeMove(move));
+
+            printf("INFO: Sent move (%i, %i)-> (%i, %i) in %ldms\n",
+                move.from.coords.x,
+                move.from.coords.y,
+                move.to.coords.x,
+                move.to.coords.y,
+                std::chrono::duration_cast<MS>(std::chrono::system_clock::now() - roomPacket.time)
+            );
         } else if (roomPacket.dataClass == "memento") {
             pugi::xml_node xml = roomPacket.data.child("state");
             Move move = Parser::parseMove(xml.child("lastMove"));

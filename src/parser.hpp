@@ -17,6 +17,8 @@ public:
 
     static PieceType parsePieceType(const pugi::xml_attribute &xml);
 
+    static bool parsePieceStacked(const pugi::xml_attribute &xml);
+
     static GameState parseGameState(const pugi::xml_node &xml);
 
     static std::string encodeCoord(const int coord);
