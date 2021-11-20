@@ -87,6 +87,21 @@ Packet Network::receiveRoomPacket() {
 }
 
 void Network::close() {
+    while (true) {
+        std::string data = receive("/>");
+
+        pugi::xml_document xmlDocument;
+        xmlDocument.load_string(data.data());
+
+        pugi::xml_node left = xmlDocument.child("left");
+
+        if (left) break;
+
+        printf("INFO: protocol end inlcudes %s", data.c_str());
+    }
+
+    send("<sc.protocol.CloseConnection/>");
+
     std::string data = receive("</protocol>");
 
     if (!data.empty()) {

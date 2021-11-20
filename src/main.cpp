@@ -46,14 +46,7 @@ void gameLoop(Network &network) {
     AlphaBeta alphaBeta{*gameState};
 
     while (true) {
-        Packet roomPacket;
-
-        try {
-            roomPacket = network.receiveRoomPacket();
-        } catch (std::runtime_error &err) {
-            printf("WARN: %s\n", err.what());
-            return;
-        }
+        Packet roomPacket = network.receiveRoomPacket();
 
         if (roomPacket.dataClass == "moveRequest") {
             Move move = alphaBeta.iterativeDeepening(roomPacket.time);
@@ -61,12 +54,12 @@ void gameLoop(Network &network) {
 
             network.sendRoomPacket(Parser::encodeMove(move));
 
-            printf("INFO: Sent move (%i, %i)-> (%i, %i) in %ldms\n",
+            printf("INFO: Sent move (%i, %i) -> (%i, %i) in %ldms\n",
                 move.from.coords.x,
                 move.from.coords.y,
                 move.to.coords.x,
                 move.to.coords.y,
-                std::chrono::duration_cast<MS>(std::chrono::system_clock::now() - roomPacket.time)
+                std::chrono::duration_cast<MS>(std::chrono::system_clock::now() - roomPacket.time).count()
             );
         } else if (roomPacket.dataClass == "memento") {
             pugi::xml_node xml = roomPacket.data.child("state");
