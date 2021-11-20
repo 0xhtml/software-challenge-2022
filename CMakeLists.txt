@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 project(software-challenge-2022)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0")
 
 add_executable(main src/main.cpp src/alphabeta.cpp src/evaluation.cpp src/gamestate.cpp src/network.cpp src/parser.cpp src/transpositiontable.cpp)
 target_link_libraries(main pugixml)
