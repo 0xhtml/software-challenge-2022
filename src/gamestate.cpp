@@ -159,6 +159,36 @@ bool GameState::isOver() const {
     return false;
 }
 
+Team GameState::calcWinner() const {
+    assert(isOver());
+
+    if (score[ONE] > score[TWO]) return ONE;
+    if (score[ONE] < score[TWO]) return TWO;
+
+    std::vector<int> dist[TEAM_COUNT]{};
+
+    for (int square = 0; square < FIELD_COUNT; ++square) {
+        const Field &field = board[square];
+
+        if (!field.occupied) continue;
+        if (field.pieceType == ROBBE) continue;
+
+        const Position pos{square};
+
+        dist[field.team].push_back(field.team ? 7 - pos.coords.x : pos.coords.x);
+    }
+
+    std::sort(dist[ONE].begin(), dist[ONE].end(), std::greater<>());
+    std::sort(dist[TWO].begin(), dist[TWO].end(), std::greater<>());
+
+    for (int i = 0; i < std::min(dist[ONE].size(), dist[TWO].size()); ++i) {
+        if (dist[ONE][i] > dist[TWO][i]) return ONE;
+        if (dist[ONE][i] < dist[TWO][i]) return TWO;
+    }
+
+    return NO_TEAM;
+}
+
 SaveState GameState::makeMove(const Move &move) {
     assert(move.from.square != move.to.square);
 

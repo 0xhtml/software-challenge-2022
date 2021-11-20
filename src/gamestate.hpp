@@ -27,6 +27,8 @@ public:
 
     bool isOver() const;
 
+    Team calcWinner() const;
+
     SaveState makeMove(const Move &move);
 
     void unmakeMove(const Move &move, const SaveState &saveState);

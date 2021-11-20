@@ -64,6 +64,6 @@ int Evaluation::evaluate(const GameState &gameState) {
     value += (gameState.score[ONE] - gameState.score[TWO]) * 55;
     value += evaluatePiecePosition(gameState);
 
-    if (gameState.turn % 2) value = -value;
+    if (gameState.turn % 2 == TWO) value = -value;
     return value;
 }

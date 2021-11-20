@@ -9,7 +9,8 @@ typedef std::chrono::milliseconds MS;
 #define TEAM_COUNT 2
 enum Team : uint8_t {
     ONE,
-    TWO
+    TWO,
+    NO_TEAM
 };
 
 #define PIECE_TYPE_COUNT 4
