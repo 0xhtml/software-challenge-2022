@@ -14,3 +14,6 @@ add_executable(perft utils/perft.cpp src/gamestate.cpp)
 
 add_executable(test utils/test.cpp src/alphabeta.cpp src/evaluation.cpp src/gamestate.cpp src/transpositiontable.cpp)
 target_link_libraries(test pthread)
+
+add_executable(crosstest utils/crosstest.cpp src/gamestate.cpp)
+target_link_libraries(crosstest pthread)
