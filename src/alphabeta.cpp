@@ -23,6 +23,13 @@ bool AlphaBeta::checkTimeOut() {
     return false;
 }
 
+int evaluateWinner(const GameState &gameState) {
+    Team winner = gameState.calcWinner();
+    if (winner == NO_TEAM) return 0;
+    if (winner == gameState.turn % TEAM_COUNT) return INT_MAX;
+    return -INT_MAX;
+}
+
 int AlphaBeta::alphaBeta(const int depth, int alpha, const int beta) {
     if (checkTimeOut()) return 0;
 
@@ -36,7 +43,8 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, const int beta) {
         }
     }
 
-    if (depth <= 0 || gameState.isOver()) return Evaluation::evaluate(gameState);
+    if (gameState.isOver()) return evaluateWinner(gameState);
+    if (depth <= 0) return Evaluation::evaluate(gameState);
 
     TranspositionType type = ALPHA;
 
@@ -49,7 +57,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, const int beta) {
         int score = -alphaBeta(depth - 1, -beta, -alpha);
         gameState.unmakeMove(move, saveState);
 
-        if (timeOut) return alpha;
+        if (timeOut) return 0;
 
         if (score >= beta) {
             transpositionTable.put({gameState.hash, BETA, depth, beta});
@@ -66,23 +74,23 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, const int beta) {
     return alpha;
 }
 
-Move AlphaBeta::alphaBetaRoot(const int depth, int alpha, const int beta) {
+MoveValuePair AlphaBeta::alphaBetaRoot(const int depth, int alpha, const int beta) {
     if (checkTimeOut()) return {};
-
-    Move bestMove;
 
     std::vector<Move> moves = gameState.getPossibleMoves();
 
     assert(moves.size() != 0);
+
+    Move bestMove = moves[0];
 
     for (Move move : moves) {
         SaveState saveState = gameState.makeMove(move);
         int score = -alphaBeta(depth - 1, -beta, -alpha);
         gameState.unmakeMove(move, saveState);
 
-        if (timeOut) return bestMove;
+        if (timeOut) return {bestMove, alpha};
 
-        if (score >= beta) return move;
+        if (score >= beta) return {move, beta};
 
         if (score > alpha) {
             alpha = score;
@@ -90,7 +98,7 @@ Move AlphaBeta::alphaBetaRoot(const int depth, int alpha, const int beta) {
         }
     }
 
-    return bestMove;
+    return {bestMove, alpha};
 }
 
 Move AlphaBeta::iterativeDeepening(const Time start) {
@@ -99,12 +107,18 @@ Move AlphaBeta::iterativeDeepening(const Time start) {
 
     Move bestMove;
 
-    for (int depth = 1; depth <= 12; ++depth) {
-        Move move = alphaBetaRoot(depth, -INT_MAX, INT_MAX);
+    for (int depth = 1; depth <= 20; ++depth) {
+        MoveValuePair moveValuePair = alphaBetaRoot(depth, -INT_MAX, INT_MAX);
 
-        if (timeOut) break;
+        if (timeOut && depth > 1) break;
 
-        bestMove = move;
+        bestMove = moveValuePair.move;
+
+        printf("DEBUG: d=%i s=%i\n", depth, moveValuePair.value);
+
+        if (timeOut || moveValuePair.value >= INT_MAX || moveValuePair.value <= -INT_MAX) {
+            break;
+        }
     }
 
     assert(bestMove != Move{});

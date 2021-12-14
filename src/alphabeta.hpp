@@ -4,6 +4,11 @@
 #include "transpositiontable.hpp"
 #include "types.hpp"
 
+struct MoveValuePair {
+    Move move;
+    int value;
+};
+
 class AlphaBeta {
 private:
     GameState &gameState;
@@ -15,7 +20,7 @@ private:
 
     int alphaBeta(const int depth, int alpha, const int beta);
 
-    Move alphaBetaRoot(const int depth, int alpha, const int beta);
+    MoveValuePair alphaBetaRoot(const int depth, int alpha, const int beta);
 
 public:
     AlphaBeta(GameState &gameState);
