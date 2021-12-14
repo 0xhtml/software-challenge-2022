@@ -5,8 +5,7 @@
 #include "gamestate.hpp"
 
 TranspositionTable::TranspositionTable() {
-    int size = sizeof(Transposition) * TRANSPOSITION_TABLE_SIZE;
-    table = (Transposition *) std::malloc(size);
+    table = (Transposition *) std::calloc(TRANSPOSITION_TABLE_SIZE, sizeof(Transposition));
 }
 
 TranspositionTable::~TranspositionTable() {
