@@ -47,6 +47,11 @@ GameState::GameState(const std::string &fen) : GameState() {
             break;
         }
 
+        if (c == '.') {
+            board[position.square - 1].stacked = true;
+            continue;
+        }
+
         board[position.square].occupied = true;
 
         if (isupper(c)) {
@@ -71,14 +76,10 @@ GameState::GameState(const std::string &fen) : GameState() {
                 break;
         }
 
-        const Field &field = board[position.square];
-        hash ^= zobristPiece[position.square][field.team][field.pieceType];
-
         position.coords.y++;
     }
 
     turn = std::stoi(fen.substr(fen.find(' ')));
-    if (turn % 2 == TWO) hash ^= zobristTeam;
 }
 
 #define pushMove(to) \
