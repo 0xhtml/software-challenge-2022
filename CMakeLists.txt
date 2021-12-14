@@ -3,7 +3,7 @@ project(software-challenge-2022)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O2 -march=broadwell")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0")
 
 add_executable(main src/main.cpp src/alphabeta.cpp src/evaluation.cpp src/gamestate.cpp src/network.cpp src/parser.cpp src/transpositiontable.cpp)
@@ -17,3 +17,7 @@ target_link_libraries(test pthread)
 
 add_executable(crosstest utils/crosstest.cpp src/gamestate.cpp)
 target_link_libraries(crosstest pthread)
+
+add_executable(bench utils/bench.cpp src/alphabeta.cpp src/evaluation.cpp src/gamestate.cpp src/transpositiontable.cpp)
+target_link_libraries(bench benchmark)
+set_target_properties(bench PROPERTIES COMPILE_FLAGS -fno-access-control)
