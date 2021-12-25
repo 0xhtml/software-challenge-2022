@@ -19,7 +19,7 @@ public:
 
     static bool parsePieceStacked(const pugi::xml_attribute &xml);
 
-    static GameState parseGameState(const pugi::xml_node &xml);
+    static void parseGameState(const pugi::xml_node &xml, GameState &gameState);
 
     static std::string encodeCoord(const int coord);
 

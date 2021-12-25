@@ -29,21 +29,20 @@ bool defaultRoomPacketHandle(const Packet &packet) {
 }
 
 void gameLoop(Network &network) {
-    GameState *gameState;
+    GameState gameState{};
 
     while (true) {
         Packet roomPacket = network.receiveRoomPacket();
 
         if (roomPacket.dataClass == "memento") {
-            GameState _gameState = Parser::parseGameState(roomPacket.data.child("state"));
-            gameState = &_gameState;
+            Parser::parseGameState(roomPacket.data.child("state"), gameState);
             break;
         } else {
             if (defaultRoomPacketHandle(roomPacket)) return;
         }
     }
 
-    AlphaBeta alphaBeta{*gameState};
+    AlphaBeta alphaBeta{gameState};
 
     while (true) {
         Packet roomPacket = network.receiveRoomPacket();
@@ -64,7 +63,7 @@ void gameLoop(Network &network) {
         } else if (roomPacket.dataClass == "memento") {
             pugi::xml_node xml = roomPacket.data.child("state");
             Move move = Parser::parseMove(xml.child("lastMove"));
-            gameState->makeMove(move);
+            gameState.makeMove(move);
         } else {
             if (defaultRoomPacketHandle(roomPacket)) return;
         }

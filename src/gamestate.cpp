@@ -239,11 +239,14 @@ SaveState GameState::makeMove(const Move &move) {
     ++turn;
     hash ^= zobristTeam;
 
+    assert(hash != saveState.hash);
+
     return saveState;
 }
 
 void GameState::unmakeMove(const Move &move, const SaveState &saveState) {
     assert(move.from.square != move.to.square);
+    assert(saveState.hash != hash);
 
     --turn;
 

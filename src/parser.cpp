@@ -70,9 +70,7 @@ bool Parser::parsePieceStacked(const pugi::xml_attribute &xml) {
     return count == 1;
 }
 
-GameState Parser::parseGameState(const pugi::xml_node &xml) {
-    GameState gameState{};
-
+void Parser::parseGameState(const pugi::xml_node &xml, GameState &gameState) {
     // turn = xml.attribute("turn").as_int();
     // TODO
     // start team, turn?
@@ -93,8 +91,6 @@ GameState Parser::parseGameState(const pugi::xml_node &xml) {
 
         field.stacked = 0;
     }
-
-    return gameState;
 }
 
 std::string Parser::encodeCoord(const int coord) {
