@@ -7,6 +7,7 @@
 
 #define FIELD_COUNT 64
 #define MAX_SCORE 2
+#define TURN_LIMIT 60
 
 class GameState {
 private:

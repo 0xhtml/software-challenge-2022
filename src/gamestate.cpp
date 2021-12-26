@@ -158,7 +158,7 @@ std::vector<Move> GameState::getPossibleMoves() const {
 }
 
 bool GameState::isOver() const {
-    if (turn > 60) return true;
+    if (turn > TURN_LIMIT) return true;
     if (turn % 2) return false;
     for (int team = 0; team < TEAM_COUNT; ++team) {
         if (score[team] >= MAX_SCORE) return true;

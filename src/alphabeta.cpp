@@ -31,12 +31,15 @@ int evaluateWinner(const GameState &gameState) {
 }
 
 int AlphaBeta::alphaBeta(const int depth, int alpha, const int beta) {
+    assert(depth >= 0);
+    assert(alpha < beta);
+
     if (checkTimeOut()) return 0;
 
     Transposition transposition = transpositionTable.get(gameState.hash);
 
     if (transposition.type != EMPTY) {
-        if (transposition.depth >= depth) {
+        if (transposition.depth >= depth && gameState.turn + transposition.depth < TURN_LIMIT) {
             if (transposition.type == EXACT) return transposition.score;
             if (transposition.type == ALPHA && transposition.score <= alpha) return alpha;
             if (transposition.type == BETA && transposition.score >= beta) return beta;
@@ -60,7 +63,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, const int beta) {
         if (timeOut) return 0;
 
         if (score >= beta) {
-            transpositionTable.put({gameState.hash, BETA, depth, beta});
+            transpositionTable.put({BETA, gameState.hash, depth, beta});
             return beta;
         }
         if (score > alpha) {
@@ -69,12 +72,15 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, const int beta) {
         }
     }
 
-    transpositionTable.put({gameState.hash, type, depth, alpha});
+    transpositionTable.put({type, gameState.hash, depth, alpha});
 
     return alpha;
 }
 
 MoveValuePair AlphaBeta::alphaBetaRoot(const int depth, int alpha, const int beta) {
+    assert(depth > 0);
+    assert(alpha < beta);
+
     if (checkTimeOut()) return {};
 
     std::vector<Move> moves = gameState.getPossibleMoves();
@@ -116,7 +122,7 @@ Move AlphaBeta::iterativeDeepening(const Time start) {
 
         printf("DEBUG: d=%i s=%i\n", depth, moveValuePair.value);
 
-        if (timeOut || moveValuePair.value >= INT_MAX || moveValuePair.value <= -INT_MAX) {
+        if (timeOut || moveValuePair.value >= INT_MAX) {
             break;
         }
     }

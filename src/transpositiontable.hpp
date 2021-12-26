@@ -11,8 +11,8 @@ enum TranspositionType {
 };
 
 struct Transposition {
-    uint64_t hash;
     TranspositionType type;
+    uint64_t hash;
     int depth;
     int score;
 };
