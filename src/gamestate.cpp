@@ -25,6 +25,12 @@ GameState::GameState() {
         rand = rand * RANDOM_SEED_A + RANDOM_SEED_B;
         zobristStacked[square] = rand;
     }
+    for (int team = 0; team < TEAM_COUNT; ++team) {
+        for (int score = 0; score < MAX_SCORE; ++score) {
+            rand = rand * RANDOM_SEED_A + RANDOM_SEED_B;
+            zobristScore[team][score] = rand;
+        }
+    }
     zobristTeam = rand * RANDOM_SEED_A + RANDOM_SEED_B;
 }
 
@@ -155,7 +161,7 @@ bool GameState::isOver() const {
     if (turn > 60) return true;
     if (turn % 2) return false;
     for (int team = 0; team < TEAM_COUNT; ++team) {
-        if (score[team] >= 2) return true;
+        if (score[team] >= MAX_SCORE) return true;
     }
     return false;
 }
@@ -216,7 +222,9 @@ SaveState GameState::makeMove(const Move &move) {
             hash ^= zobristPiece[move.to.square][to.team][to.pieceType];
             if (to.stacked) hash ^= zobristStacked[move.to.square];
         }
+        if (score[team] > 0) hash ^= zobristScore[team][score[team] - 1];
         score[team] += points;
+        hash ^= zobristScore[team][score[team] - 1];
     } else {
         if (to.occupied) {
             hash ^= zobristPiece[move.to.square][to.team][to.pieceType];

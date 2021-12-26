@@ -6,11 +6,13 @@
 #include "types.hpp"
 
 #define FIELD_COUNT 64
+#define MAX_SCORE 2
 
 class GameState {
 private:
     uint64_t zobristPiece[FIELD_COUNT][TEAM_COUNT][PIECE_TYPE_COUNT];
     uint64_t zobristStacked[FIELD_COUNT];
+    uint64_t zobristScore[TEAM_COUNT][MAX_SCORE];
     uint64_t zobristTeam;
 
 public:
