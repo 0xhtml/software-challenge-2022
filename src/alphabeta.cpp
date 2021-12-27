@@ -30,7 +30,7 @@ int evaluateWinner(const GameState &gameState) {
     return -INT_MAX;
 }
 
-int AlphaBeta::alphaBeta(const int depth, int alpha, const int beta) {
+int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
     assert(depth >= 0);
     assert(alpha < beta);
 
@@ -38,13 +38,23 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, const int beta) {
 
     Transposition transposition = transpositionTable.get(gameState.hash);
 
-    if (transposition.type != EMPTY) {
-        if (transposition.depth >= depth && gameState.turn + transposition.depth < TURN_LIMIT) {
-            if (transposition.type == EXACT) return transposition.score;
-            if (transposition.type == ALPHA && transposition.score <= alpha) return alpha;
-            if (transposition.type == BETA && transposition.score >= beta) return beta;
+    if (transposition.type != EMPTY && transposition.depth >= depth && gameState.turn + transposition.depth < TURN_LIMIT) {
+        if (transposition.type == EXACT) return transposition.score;
+
+        if (transposition.type == ALPHA) {
+            if (transposition.score <= alpha) return alpha;
+
+            if (transposition.depth == depth && transposition.score < beta)
+                beta = transposition.score;
+        } else if (transposition.type == BETA) {
+            if (transposition.score >= beta) return beta;
+
+            if (transposition.depth == depth && transposition.score > alpha)
+                alpha = transposition.score;
         }
     }
+
+    assert(alpha < beta);
 
     if (gameState.isOver()) return evaluateWinner(gameState);
     if (depth <= 0) return Evaluation::evaluate(gameState);
@@ -77,7 +87,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, const int beta) {
     return alpha;
 }
 
-MoveValuePair AlphaBeta::alphaBetaRoot(const int depth, int alpha, const int beta) {
+MoveValuePair AlphaBeta::alphaBetaRoot(const int depth, int alpha, int beta) {
     assert(depth > 0);
     assert(alpha < beta);
 

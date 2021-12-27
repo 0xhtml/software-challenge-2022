@@ -18,9 +18,9 @@ private:
 
     bool checkTimeOut();
 
-    int alphaBeta(const int depth, int alpha, const int beta);
+    int alphaBeta(const int depth, int alpha, int beta);
 
-    MoveValuePair alphaBetaRoot(const int depth, int alpha, const int beta);
+    MoveValuePair alphaBetaRoot(const int depth, int alpha, int beta);
 
 public:
     AlphaBeta(GameState &gameState);
