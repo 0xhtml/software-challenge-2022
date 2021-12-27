@@ -31,9 +31,9 @@ Transposition TranspositionTable::get(const uint64_t hash) const {
 }
 
 bool replace(const Transposition &stored, const Transposition &replacement) {
-    if (stored.hash != replacement.hash) return true;
-    if (stored.depth < replacement.depth) return true;
-    if (replacement.type == EXACT) return true;
+    if (stored.type == EMPTY) return true;
+    if (replacement.depth >= stored.depth) return true;
+    if (replacement.turn > stored.turn + stored.depth) return true;
     return false;
 }
 

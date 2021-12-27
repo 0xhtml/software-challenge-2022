@@ -70,7 +70,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
         if (timeOut) return 0;
 
         if (score >= beta) {
-            transpositionTable.put({BETA, gameState.hash, depth, beta, transposition.move});
+            transpositionTable.put({BETA, gameState.hash, depth, beta, transposition.move, gameState.turn});
             return beta;
         }
 
@@ -95,7 +95,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
         if (timeOut) return 0;
 
         if (score >= beta) {
-            transpositionTable.put({BETA, gameState.hash, depth, beta, move});
+            transpositionTable.put({BETA, gameState.hash, depth, beta, move, gameState.turn});
             return beta;
         }
 
@@ -106,7 +106,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
         }
     }
 
-    transpositionTable.put({type, gameState.hash, depth, alpha, bestMove});
+    transpositionTable.put({type, gameState.hash, depth, alpha, bestMove, gameState.turn});
 
     return alpha;
 }

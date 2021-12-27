@@ -16,6 +16,7 @@ struct Transposition {
     int depth;
     int score;
     Move move;
+    int turn;
 };
 
 #define TRANSPOSITION_TABLE_BITS 20
