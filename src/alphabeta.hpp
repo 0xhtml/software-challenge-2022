@@ -13,6 +13,7 @@ class AlphaBeta {
 private:
     GameState &gameState;
     TranspositionTable transpositionTable{};
+    uint64_t history[PIECE_TYPE_COUNT][FIELD_COUNT]{};
     Time start;
     bool timeOut;
 

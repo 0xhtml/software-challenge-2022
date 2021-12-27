@@ -85,6 +85,11 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
 
     if (moves.size() == 0) return -INT_MAX;
 
+    std::sort(moves.begin(), moves.end(), [&](const Move &a, const Move &b){
+        return history[gameState.board[a.from.square].pieceType][a.to.square]
+             > history[gameState.board[b.from.square].pieceType][b.to.square];
+    });
+
     for (Move move : moves) {
         if (transposition.move == move) continue;
 
@@ -96,6 +101,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
 
         if (score >= beta) {
             transpositionTable.put({BETA, gameState.hash, depth, beta, move, gameState.turn});
+            history[gameState.board[move.from.square].pieceType][move.to.square] += 1 << depth;
             return beta;
         }
 
