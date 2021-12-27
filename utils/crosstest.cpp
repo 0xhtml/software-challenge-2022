@@ -1,3 +1,4 @@
+#include <fstream>
 #include <random>
 #include <string>
 #include <utility>
@@ -9,6 +10,7 @@
 #include "players/minimus.hpp"
 #include "players/random.hpp"
 #include "threadpool.hpp"
+#include "tostring.hpp"
 
 #define addPlayer(t) t t##_; players.push_back(&t##_); names.push_back(#t)
 
@@ -28,7 +30,7 @@ struct InputData {
 int main() {
     std::mt19937 mt19937{std::random_device{}()};
 
-    ThreadPool<InputData, Team> pool{[](InputData data) -> Team {
+    ThreadPool<InputData, Team> pool{[](std::ofstream& log, InputData data) -> Team {
         std::mt19937 mt19937{data.seed};
         std::uniform_int_distribution<> pieceDist{0, 7};
         std::string fen = "HHMMSSRR/8/8/8/8/8/8/rrssmmhh 0";
@@ -44,6 +46,8 @@ int main() {
 
         Team winner = NO_TEAM;
 
+        std::vector<std::string> strs{};
+
         while (!gameState.isOver()) {
             if (gameState.getPossibleMoves().size() == 0) {
                 if (gameState.turn % 2 == ONE) winner = ONE;
@@ -52,14 +56,53 @@ int main() {
                 break;
             }
 
+            std::string str = ToString::boardToString(gameState);
+
+            Move move;
+
             if (gameState.turn % 2 == ONE) {
-                gameState.makeMove(data.one->run(gameState, mt19937));
+                move = data.one->run(gameState, mt19937);
             } else {
-                gameState.makeMove(data.two->run(gameState, mt19937));
+                move = data.two->run(gameState, mt19937);
             }
+
+            str.push_back(',');
+            str.append(ToString::fieldToString(gameState.board[move.from.square]));
+
+            gameState.makeMove(move);
+
+            str.push_back(',');
+            str.append(ToString::fieldToString(gameState.board[move.to.square]));
+
+            strs.push_back(str);
         }
 
         if (winner == NO_TEAM) winner = gameState.calcWinner();
+
+        int i = 1;
+
+        for (std::string str : strs) {
+            log << 0;
+            log << ",";
+            log << str;
+            log << ",";
+            log << i;
+            log << ",";
+            log << gameState.turn - i;
+            log << ",";
+            switch (winner) {
+                case ONE:
+                    log << 1;
+                    break;
+                case TWO:
+                    log << 0;
+                    break;
+                case NO_TEAM:
+                    log << 0.5;
+            }
+            log << std::endl;
+            ++i;
+        }
 
         return winner;
     }};

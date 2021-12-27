@@ -3,9 +3,11 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include <fstream>
 #include <functional>
 #include <queue>
 #include <vector>
+#include <string>
 
 template <typename InputType, typename OutputType> class ThreadPool {
     template <typename T> struct ThreadSafeVar {
@@ -21,9 +23,12 @@ template <typename InputType, typename OutputType> class ThreadPool {
 
     ThreadSafeVar<std::queue<OutputType>> outputs;
 
-    std::function<OutputType(InputType)> func;
+    std::function<OutputType(std::ofstream&, InputType)> func;
 
-    void worker(){
+    void worker(int id){
+        std::ofstream log;
+        log.open("log" + std::to_string(id));
+
         while (true) {
             InputType input;
 
@@ -40,7 +45,7 @@ template <typename InputType, typename OutputType> class ThreadPool {
                 inputs.var.pop();
             }
 
-            OutputType output = func(input);
+            OutputType output = func(log, input);
 
             {
                 std::unique_lock<std::mutex> lock(outputs.mutex);
@@ -49,14 +54,16 @@ template <typename InputType, typename OutputType> class ThreadPool {
             }
             outputs.condition.notify_one();
         }
+
+        log.close();
     }
 
 public:
-    ThreadPool(std::function<OutputType(InputType)> func){
+    ThreadPool(std::function<OutputType(std::ofstream&, InputType)> func){
         this->func = func;
 
         for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
-            threads.push_back(std::thread(&ThreadPool::worker, this));
+            threads.push_back(std::thread(&ThreadPool::worker, this, i));
         }
     }
 
