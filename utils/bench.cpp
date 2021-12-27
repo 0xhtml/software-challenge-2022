@@ -139,11 +139,15 @@ static void BM_AlphaBeta_alphaBetaRoot(benchmark::State &state) {
 
         AlphaBeta alphaBeta{gameState};
 
-        for (int j = 0; j < 3; ++j) {
+        for (int j = 0; j < 5; ++j) {
             alphaBeta.start = std::chrono::system_clock::now();
             alphaBeta.timeOut = false;
 
-            MoveValuePair result = alphaBeta.alphaBetaRoot(d, -INT_MAX, INT_MAX);
+            MoveValuePair result;
+            for (int i = 1; i <= d; ++i) {
+                result = alphaBeta.alphaBetaRoot(i, -INT_MAX, INT_MAX);
+                if (result.value >= INT_MAX) break;
+            }
             gameState.makeMove(result.move);
 
             std::vector<Move> moves = gameState.getPossibleMoves();
@@ -160,10 +164,11 @@ static void BM_AlphaBeta_alphaBetaRoot(benchmark::State &state) {
         state.ResumeTiming();
 
         for (int i = 1; i <= d; ++i) {
-            alphaBeta.alphaBetaRoot(i, -INT_MAX, INT_MAX);
+            MoveValuePair result = alphaBeta.alphaBetaRoot(i, -INT_MAX, INT_MAX);
+            if (result.value >= INT_MAX) break;
         }
     }
 }
-BENCHMARK(BM_AlphaBeta_alphaBetaRoot)->DenseRange(1, 4)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_AlphaBeta_alphaBetaRoot)->DenseRange(1, 5)->Unit(benchmark::kMillisecond);
 
 BENCHMARK_MAIN();
