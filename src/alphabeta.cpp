@@ -60,12 +60,34 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
     if (depth <= 0) return Evaluation::evaluate(gameState);
 
     TranspositionType type = ALPHA;
+    Move bestMove;
+
+    if (transposition.type == EXACT || transposition.type == BETA) {
+        SaveState saveState = gameState.makeMove(transposition.move);
+        int score = -alphaBeta(depth - 1, -beta, -alpha);
+        gameState.unmakeMove(transposition.move, saveState);
+
+        if (timeOut) return 0;
+
+        if (score >= beta) {
+            transpositionTable.put({BETA, gameState.hash, depth, beta, transposition.move});
+            return beta;
+        }
+
+        if (score > alpha) {
+            type = EXACT;
+            bestMove = transposition.move;
+            alpha = score;
+        }
+    }
 
     std::vector<Move> moves = gameState.getPossibleMoves();
 
     if (moves.size() == 0) return -INT_MAX;
 
     for (Move move : moves) {
+        if (transposition.move == move) continue;
+
         SaveState saveState = gameState.makeMove(move);
         int score = -alphaBeta(depth - 1, -beta, -alpha);
         gameState.unmakeMove(move, saveState);
@@ -73,16 +95,18 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
         if (timeOut) return 0;
 
         if (score >= beta) {
-            transpositionTable.put({BETA, gameState.hash, depth, beta});
+            transpositionTable.put({BETA, gameState.hash, depth, beta, move});
             return beta;
         }
+
         if (score > alpha) {
             type = EXACT;
+            bestMove = move;
             alpha = score;
         }
     }
 
-    transpositionTable.put({type, gameState.hash, depth, alpha});
+    transpositionTable.put({type, gameState.hash, depth, alpha, bestMove});
 
     return alpha;
 }
