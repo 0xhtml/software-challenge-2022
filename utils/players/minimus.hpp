@@ -6,6 +6,8 @@
 #include "base.hpp"
 
 class Minimus : public Player {
+    using Player::Player;
+
     int rate(GameState &gameState) const override {
         int value = 0;
 

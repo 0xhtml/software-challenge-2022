@@ -5,7 +5,7 @@
 
 #include "base.hpp"
 
-class Material : public Player {
+class Queren : public Player {
     using Player::Player;
 
     int initialDepth() const override {
@@ -23,12 +23,10 @@ class Material : public Player {
             const Field &field = gameState.board[square];
 
             if (!field.occupied) continue;
+            if (field.pieceType == ROBBE) continue;
 
-            if (field.team == ONE) {
-                ++value;
-            } else {
-                --value;
-            }
+            if (field.team == ONE) value += Position{square}.coords.x;
+            else value -= 7 - Position{square}.coords.x;
         }
 
         return value;

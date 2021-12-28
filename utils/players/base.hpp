@@ -8,6 +8,10 @@
 #include "../../src/types.hpp"
 
 class Player {
+protected:
+    GameState &gameState;
+    std::mt19937 &mt19937;
+
     virtual int initialDepth() const {
         return 1;
     }
@@ -61,7 +65,11 @@ class Player {
 	return alpha;
     }
 
-    virtual Move run(GameState &gameState) const {
+public:
+    Player(GameState &gameState, std::mt19937 &mt19937) : gameState(gameState), mt19937(mt19937) {}
+    virtual ~Player() = default;
+
+    virtual Move run() {
 	int alpha = -INT_MAX;
         Move bestMove;
 
@@ -77,10 +85,5 @@ class Player {
         }
 
         return bestMove;
-    }
-
-public:
-    virtual Move run(GameState &gameState, std::mt19937 &mt19937) const {
-        return run(gameState);
     }
 };

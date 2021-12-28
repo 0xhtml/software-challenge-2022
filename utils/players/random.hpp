@@ -3,8 +3,10 @@
 #include "base.hpp"
 
 class Random : public Player {
+    using Player::Player;
+
 public:
-    Move run(GameState &gameState, std::mt19937 &mt19937) const override {
+    Move run() override {
         std::vector<Move> moves = gameState.getPossibleMoves();
 
         std::uniform_int_distribution<> dist(0, moves.size() - 1);

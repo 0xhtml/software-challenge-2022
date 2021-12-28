@@ -4,27 +4,15 @@
 #include <utility>
 #include <vector>
 
-#include "../src/gamestate.hpp"
-#include "players/material.hpp"
-#include "players/mauer.hpp"
-#include "players/minimus.hpp"
-#include "players/random.hpp"
 #include "threadpool.hpp"
-#include "tostring.hpp"
-
-#define addPlayer(t) t t##_; players.push_back(&t##_); names.push_back(#t)
+#include "helper.hpp"
 
 #define GAME_COUNT 100
-#define PLAYERS() \
-    addPlayer(Material); \
-    addPlayer(Mauer); \
-    addPlayer(Minimus); \
-    addPlayer(Random)
 
 struct InputData {
     unsigned long seed;
-    Player* one;
-    Player* two;
+    int one;
+    int two;
 };
 
 int main() {
@@ -32,97 +20,32 @@ int main() {
 
     ThreadPool<InputData, Team> pool{[](std::ofstream& log, InputData data) -> Team {
         std::mt19937 mt19937{data.seed};
-        std::uniform_int_distribution<> pieceDist{0, 7};
-        std::string fen = "HHMMSSRR/8/8/8/8/8/8/rrssmmhh 0";
 
-        for (int n = 0; n < 20; ++n) {
-            int a = pieceDist(mt19937);
-            int b = pieceDist(mt19937);
-            std::swap(fen[a], fen[b]);
-            std::swap(fen[28 - a], fen[28 - b]);
-        }
+        GameState gameState = Helper::createGameState(mt19937);
 
-        GameState gameState{fen};
+        NEW_PLAYER(one, data.one);
+        NEW_PLAYER(two, data.one);
 
-        Team winner = NO_TEAM;
+        Team winner = Helper::playGame(gameState, one, two, log);
 
-        std::vector<std::string> strs{};
-
-        while (!gameState.isOver()) {
-            if (gameState.getPossibleMoves().size() == 0) {
-                if (gameState.turn % 2 == ONE) winner = ONE;
-                else winner = TWO;
-
-                break;
-            }
-
-            std::string str = ToString::boardToString(gameState);
-
-            Move move;
-
-            if (gameState.turn % 2 == ONE) {
-                move = data.one->run(gameState, mt19937);
-            } else {
-                move = data.two->run(gameState, mt19937);
-            }
-
-            str.push_back(',');
-            str.append(ToString::fieldToString(gameState.board[move.from.square]));
-
-            gameState.makeMove(move);
-
-            str.push_back(',');
-            str.append(ToString::fieldToString(gameState.board[move.to.square]));
-
-            strs.push_back(str);
-        }
-
-        if (winner == NO_TEAM) winner = gameState.calcWinner();
-
-        int i = 1;
-
-        for (std::string str : strs) {
-            log << 0;
-            log << ",";
-            log << str;
-            log << ",";
-            log << i;
-            log << ",";
-            log << gameState.turn - i;
-            log << ",";
-            switch (winner) {
-                case ONE:
-                    log << 1;
-                    break;
-                case TWO:
-                    log << 0;
-                    break;
-                case NO_TEAM:
-                    log << 0.5;
-            }
-            log << std::endl;
-            ++i;
-        }
+        delete one;
+        delete two;
 
         return winner;
     }};
 
-    std::vector<Player*> players{};
-    std::vector<std::string> names{};
-    PLAYERS();
-
-    int count = players.size();
+    PLAYER_NAMES(names);
 
     printf(",");
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < PLAYER_COUNT; ++i) {
         printf("%s,", names[i].c_str());
     }
     printf("\n");
 
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < PLAYER_COUNT; ++i) {
         printf("%s,", names[i].c_str());
 
-        for (int j = 0; j < count; ++j) {
+        for (int j = 0; j < PLAYER_COUNT; ++j) {
             if (i == j) {
                 printf(",");
                 continue;
@@ -131,7 +54,7 @@ int main() {
             int score[]{0, 0};
 
             for (int k = 0; k < GAME_COUNT; k++) {
-                pool.push({mt19937(), players[i], players[j]});
+                pool.push({mt19937(), i, j});
             }
 
             for (int k = 0; k < GAME_COUNT; k++) {

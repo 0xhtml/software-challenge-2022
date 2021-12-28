@@ -5,11 +5,13 @@
 #include "base.hpp"
 
 class Mauer : public Player {
+    using Player::Player;
+
 public:
-    Move run(GameState &gameState) const override {
+    Move run() override {
         std::vector<Move> moves = gameState.getPossibleMoves();
 
-        std::sort(moves.begin(), moves.end(), [gameState](const Move& a, const Move& b) {
+        std::sort(moves.begin(), moves.end(), [&](const Move& a, const Move& b) {
             // Points
             const Field &afrom = gameState.board[a.from.square];
             const Field &ato = gameState.board[a.to.square];
