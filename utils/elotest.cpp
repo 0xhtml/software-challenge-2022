@@ -15,7 +15,7 @@
 
 #define addPlayer(t) t t##_; players.push_back(&t##_)
 
-#define GAME_COUNT 100
+#define GAME_COUNT 160
 #define PLAYERS() \
     addPlayer(Material); \
     addPlayer(Mauer); \
@@ -25,6 +25,7 @@
 struct InputData {
     unsigned long seed;
     Player* player;
+    Team ownTeam;
 };
 
 int main() {
@@ -58,17 +59,20 @@ int main() {
 
             Move move;
 
-            if (gameState.turn % 2 == ONE) {
-                alphaBeta.start = std::chrono::system_clock::now();
+            if (gameState.turn % 2 == data.ownTeam) {
+                Time start = std::chrono::system_clock::now();
+                alphaBeta.start = start - std::chrono::milliseconds(1950 - 15);
                 alphaBeta.timeOut = false;
 
-                MoveValuePair result;
-                for (int d = 1; d <= 5; ++d) {
-                    result = alphaBeta.alphaBetaRoot(d, -INT_MAX, INT_MAX);
-                    if (result.value >= INT_MAX) break;
-                }
+                for (int depth = 1; depth <= 20; ++depth) {
+                    MoveValuePair moveValuePair = alphaBeta.alphaBetaRoot(depth, -INT_MAX, INT_MAX);
 
-                move = result.move;
+                    if (alphaBeta.timeOut && depth > 1) break;
+
+                    move = moveValuePair.move;
+
+                    if (alphaBeta.timeOut || moveValuePair.value >= INT_MAX) break;
+                }
             } else {
                 move = data.player->run(gameState, mt19937);
             }
@@ -78,26 +82,41 @@ int main() {
 
         if (winner == NO_TEAM) winner = gameState.calcWinner();
 
+        if (data.ownTeam == TWO) {
+            if (winner == ONE) winner = TWO;
+            else if (winner == TWO) winner = ONE;
+        }
+
         return winner;
     }};
 
     std::vector<Player*> players{};
     PLAYERS();
 
-    int score[]{0, 0};
+    int wins = 0;
+    int draws = 0;
+    int losses = 0;
 
     for (int j = 0; j < players.size(); ++j) {
         for (int k = 0; k < GAME_COUNT; k++) {
-            pool.push({mt19937(), players[j]});
+            pool.push({mt19937(), players[j], ONE});
+            pool.push({mt19937(), players[j], TWO});
         }
 
-        for (int k = 0; k < GAME_COUNT; k++) {
+        for (int k = 0; k < GAME_COUNT * 2; k++) {
             Team winner = pool.pop();
-            if (winner != NO_TEAM) score[winner]++;
+
+            if (winner == ONE) wins++;
+            else if (winner == TWO) losses++;
+            else draws++;
         }
     }
 
-    printf("%i;%i\n", score[ONE], score[TWO]);
+    int games = wins + draws + losses;
+    double score = wins + .5 * draws;
+    double winRatio = score / games;
+
+    printf("%f\n", winRatio);
 
     return 0;
 }
