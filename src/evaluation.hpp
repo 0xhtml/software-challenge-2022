@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gamestate.hpp"
-#include "types.hpp"
 
 class Evaluation {
 public:

@@ -5,6 +5,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O2 -march=broadwell")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0")
+set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE include-what-you-use)
 
 add_executable(main src/main.cpp src/alphabeta.cpp src/evaluation.cpp src/gamestate.cpp src/network.cpp src/parser.cpp src/transpositiontable.cpp)
 target_link_libraries(main pugixml)

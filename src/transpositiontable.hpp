@@ -1,6 +1,7 @@
 #pragma once
 
-#include "gamestate.hpp"
+#include <stdint.h>
+
 #include "types.hpp"
 
 enum TranspositionType {

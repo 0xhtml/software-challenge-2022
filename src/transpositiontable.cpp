@@ -1,9 +1,7 @@
 #include "transpositiontable.hpp"
 
+#include <assert.h>
 #include <cstdlib>
-#include <cassert>
-
-#include "gamestate.hpp"
 
 TranspositionTable::TranspositionTable() {
     table = (Transposition *) std::calloc(TRANSPOSITION_TABLE_SIZE, sizeof(Transposition));

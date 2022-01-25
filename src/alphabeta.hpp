@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "gamestate.hpp"
 #include "transpositiontable.hpp"
 #include "types.hpp"

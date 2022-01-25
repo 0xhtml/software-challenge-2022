@@ -1,4 +1,9 @@
+#include <assert.h>
+#include <bits/getopt_core.h>
+#include <chrono>
 #include <getopt.h>
+#include <pugixml.hpp>
+#include <stdio.h>
 #include <string>
 
 #include "alphabeta.hpp"

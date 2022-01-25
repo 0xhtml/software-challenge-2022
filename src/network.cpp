@@ -1,13 +1,13 @@
 #include "network.hpp"
 
-#include <assert.h>
 #include <boost/asio.hpp>
 #include <chrono>
 #include <pugixml.hpp>
+#include <stdexcept>
+#include <stdio.h>
 #include <string>
 
 #include "types.hpp"
-#include "parser.hpp"
 
 Network::Network(const std::string &host, const int port, const std::string &reservation) {
     boost::asio::ip::tcp::endpoint endpoint;

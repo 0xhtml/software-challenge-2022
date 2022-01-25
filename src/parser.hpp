@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pugixml.hpp>
+#include <string>
 
 #include "gamestate.hpp"
 #include "types.hpp"

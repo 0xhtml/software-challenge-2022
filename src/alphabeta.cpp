@@ -1,7 +1,11 @@
 #include "alphabeta.hpp"
 
-#include <cassert>
-#include <climits>
+#include <algorithm>
+#include <assert.h>
+#include <chrono>
+#include <limits.h>
+#include <stdio.h>
+#include <vector>
 
 #include "evaluation.hpp"
 #include "gamestate.hpp"
