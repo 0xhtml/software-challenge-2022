@@ -17,21 +17,21 @@ GameState::GameState() {
         for (int team = 0; team < TEAM_COUNT; ++team) {
             for (int piece = 0; piece < PIECE_TYPE_COUNT; ++piece) {
                 rand = rand * RANDOM_SEED_A + RANDOM_SEED_B;
-                zobristPiece[square][team][piece] = rand;
+                zobrist.piece[square][team][piece] = rand;
             }
         }
     }
     for (int square = 0; square < FIELD_COUNT; ++square) {
         rand = rand * RANDOM_SEED_A + RANDOM_SEED_B;
-        zobristStacked[square] = rand;
+        zobrist.stacked[square] = rand;
     }
     for (int team = 0; team < TEAM_COUNT; ++team) {
         for (int score = 0; score < MAX_SCORE; ++score) {
             rand = rand * RANDOM_SEED_A + RANDOM_SEED_B;
-            zobristScore[team][score] = rand;
+            zobrist.score[team][score] = rand;
         }
     }
-    zobristTeam = rand * RANDOM_SEED_A + RANDOM_SEED_B;
+    zobrist.team = rand * RANDOM_SEED_A + RANDOM_SEED_B;
 }
 
 GameState::GameState(const std::string &fen) : GameState() {
@@ -219,33 +219,33 @@ SaveState GameState::makeMove(const Move &move) {
     if (points > 0) {
         if (to.occupied) {
             to.occupied = false;
-            hash ^= zobristPiece[move.to.square][to.team][to.pieceType];
-            if (to.stacked) hash ^= zobristStacked[move.to.square];
+            hash ^= zobrist.piece[move.to.square][to.team][to.pieceType];
+            if (to.stacked) hash ^= zobrist.stacked[move.to.square];
         }
-        if (score[team] > 0) hash ^= zobristScore[team][score[team] - 1];
+        if (score[team] > 0) hash ^= zobrist.score[team][score[team] - 1];
         score[team] += points;
-        hash ^= zobristScore[team][score[team] - 1];
+        hash ^= zobrist.score[team][score[team] - 1];
     } else {
         if (to.occupied) {
-            hash ^= zobristPiece[move.to.square][to.team][to.pieceType];
+            hash ^= zobrist.piece[move.to.square][to.team][to.pieceType];
         }
 
         to.stacked = to.occupied || from.stacked;
-        if (to.stacked) hash ^= zobristStacked[move.to.square];
+        if (to.stacked) hash ^= zobrist.stacked[move.to.square];
 
         to.occupied = true;
         to.team = from.team;
         to.pieceType = from.pieceType;
 
-        hash ^= zobristPiece[move.to.square][to.team][to.pieceType];
+        hash ^= zobrist.piece[move.to.square][to.team][to.pieceType];
     }
 
     from.occupied = false;
-    hash ^= zobristPiece[move.from.square][from.team][from.pieceType];
-    if (from.stacked) hash ^= zobristStacked[move.from.square];
+    hash ^= zobrist.piece[move.from.square][from.team][from.pieceType];
+    if (from.stacked) hash ^= zobrist.stacked[move.from.square];
 
     ++turn;
-    hash ^= zobristTeam;
+    hash ^= zobrist.team;
 
     assert(hash != saveState.hash);
 

@@ -12,10 +12,12 @@
 
 class GameState {
 private:
-    uint64_t zobristPiece[FIELD_COUNT][TEAM_COUNT][PIECE_TYPE_COUNT];
-    uint64_t zobristStacked[FIELD_COUNT];
-    uint64_t zobristScore[TEAM_COUNT][MAX_SCORE];
-    uint64_t zobristTeam;
+    struct {
+        uint64_t piece[FIELD_COUNT][TEAM_COUNT][PIECE_TYPE_COUNT];
+        uint64_t stacked[FIELD_COUNT];
+        uint64_t score[TEAM_COUNT][MAX_SCORE];
+        uint64_t team;
+    } zobrist;
 
 public:
     Field board[FIELD_COUNT]{};
