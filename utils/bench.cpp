@@ -1,4 +1,6 @@
 #include <benchmark/benchmark.h>
+#include <chrono>
+#include <limits.h>
 #include <string>
 #include <vector>
 
@@ -126,6 +128,47 @@ static void BM_GameState_getPossibleMoves(benchmark::State &state) {
     }
 }
 BENCHMARK(BM_GameState_getPossibleMoves);
+
+static void BM_GameState_makeMove(benchmark::State &state) {
+    int i = 0;
+
+    for (auto _ : state) {
+        state.PauseTiming();
+
+        GameState gameState{states[i % states.size()]};
+
+        std::vector<Move> moves = gameState.getPossibleMoves();
+        Move move = moves[i % moves.size()];
+
+        i++;
+
+        state.ResumeTiming();
+
+        gameState.makeMove(move);
+    }
+}
+BENCHMARK(BM_GameState_makeMove);
+
+static void BM_GameState_unmakeMove(benchmark::State &state) {
+    int i = 0;
+
+    for (auto _ : state) {
+        state.PauseTiming();
+
+        GameState gameState{states[i % states.size()]};
+
+        std::vector<Move> moves = gameState.getPossibleMoves();
+        Move move = moves[i % moves.size()];
+        SaveState saveState = gameState.makeMove(move);
+
+        i++;
+
+        state.ResumeTiming();
+
+        gameState.unmakeMove(move, saveState);
+    }
+}
+BENCHMARK(BM_GameState_unmakeMove);
 
 static void BM_AlphaBeta_alphaBetaRoot(benchmark::State &state) {
     const int d = state.range(0);
