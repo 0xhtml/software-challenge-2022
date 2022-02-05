@@ -2,7 +2,8 @@
 
 #include <algorithm>
 #include <cassert>
-#include <pugixml.hpp>
+#include <ctype.h>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -38,8 +39,10 @@ GameState::GameState(const std::string &fen) : GameState() {
     Position position{};
 
     for (char c : fen) {
+        if (c == ' ') break;
+
         if (isdigit(c)) {
-            position.coords.y += c - 48;
+            position.coords.y += c - '0';
             continue;
         }
 
@@ -49,12 +52,10 @@ GameState::GameState(const std::string &fen) : GameState() {
             continue;
         }
 
-        if (c == ' ') {
-            break;
-        }
-
         if (c == '.') {
-            board[position.square - 1].stacked = true;
+            position.coords.y--;
+            board[position.square].stacked = true;
+            position.coords.y++;
             continue;
         }
 

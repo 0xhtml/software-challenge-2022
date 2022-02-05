@@ -23,7 +23,7 @@ public:
     Field board[FIELD_COUNT]{};
     int turn = 0;
     int score[TEAM_COUNT]{};
-    uint64_t hash;
+    uint64_t hash = 0;
 
     GameState();
 
