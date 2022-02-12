@@ -7,9 +7,10 @@
 #include "types.hpp"
 
 struct Packet {
+    Time time;
+    pugi::xml_document xml;
     pugi::xml_node data;
     std::string dataClass;
-    Time time;
 };
 
 class Network {

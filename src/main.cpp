@@ -1,10 +1,16 @@
 #include <assert.h>
-#include <bits/getopt_core.h>
 #include <chrono>
-#include <getopt.h>
 #include <pugixml.hpp>
 #include <stdio.h>
 #include <string>
+
+#ifndef WIN32
+#define DURFRMT "%ld"
+#include <bits/getopt_core.h>
+#include <getopt.h>
+#else
+#define DURFRMT "%lld"
+#endif
 
 #include "alphabeta.hpp"
 #include "gamestate.hpp"
@@ -58,7 +64,7 @@ void gameLoop(Network &network) {
 
             network.sendRoomPacket(Parser::encodeMove(move));
 
-            printf("INFO: Sent move (%i, %i) -> (%i, %i) in %ldms\n",
+            printf("INFO: Sent move (%i, %i) -> (%i, %i) in " DURFRMT "ms\n",
                 move.from.coords.x,
                 move.from.coords.y,
                 move.to.coords.x,
@@ -80,6 +86,7 @@ int main(int argc, char **argv) {
     int port = 13050;
     std::string reservation;
 
+#ifndef WIN32
     while (true) {
         const auto opt = getopt_long(argc, argv, "h:p:r:", (const option[]) {
                 {"host",        required_argument, nullptr, 'h'},
@@ -106,6 +113,7 @@ int main(int argc, char **argv) {
                 break;
         }
     }
+#endif
 
     Network network{host, port, reservation};
     gameLoop(network);

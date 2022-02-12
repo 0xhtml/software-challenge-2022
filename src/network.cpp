@@ -78,12 +78,13 @@ Packet Network::receiveRoomPacket() {
 
     if (data.empty()) throw std::runtime_error("Didn't receive room message");
 
-    pugi::xml_document xmlDocument;
-    xmlDocument.load_string(data.data());
+    Packet packet{time};
 
-    pugi::xml_node xml = xmlDocument.child("room").child("data");
+    packet.xml.load_string(data.data());
+    packet.data = packet.xml.child("room").child("data");
+    packet.dataClass = packet.data.attribute("class").value();
 
-    return {xml, xml.attribute("class").value(), time};
+    return packet;
 }
 
 void Network::close() {
