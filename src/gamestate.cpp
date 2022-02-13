@@ -32,6 +32,10 @@ GameState::GameState() {
             zobrist.score[team][score] = rand;
         }
     }
+    for (int turn = 0; turn < TURN_LIMIT; ++turn) {
+        rand = rand * RANDOM_SEED_A + RANDOM_SEED_B;
+        zobrist.turn[turn] = rand;
+    }
     zobrist.team = rand * RANDOM_SEED_A + RANDOM_SEED_B;
 }
 
@@ -245,7 +249,9 @@ SaveState GameState::makeMove(const Move &move) {
     hash ^= zobrist.piece[move.from.square][from.team][from.pieceType];
     if (from.stacked) hash ^= zobrist.stacked[move.from.square];
 
+    hash ^= zobrist.turn[turn];
     ++turn;
+    hash ^= zobrist.turn[turn];
     hash ^= zobrist.team;
 
     assert(hash != saveState.hash);

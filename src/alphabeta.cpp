@@ -42,7 +42,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
 
     Transposition transposition = transpositionTable.get(gameState.hash);
 
-    if (transposition.type != EMPTY && transposition.depth >= depth && gameState.turn + transposition.depth < TURN_LIMIT) {
+    if (transposition.type != EMPTY && transposition.depth >= depth) {
         if (transposition.type == EXACT) return transposition.score;
 
         if (transposition.type == ALPHA) {
