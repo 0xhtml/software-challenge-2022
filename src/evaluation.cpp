@@ -2,27 +2,43 @@
 
 #include "types.hpp"
 
-const int pieceSquareTable[PIECE_TYPE_COUNT][FIELD_COUNT / 2]{
+const int pieceSquareTable[PIECE_TYPE_COUNT][FIELD_COUNT]{
     // HERZMUSCHEL
-    { 0, 1, 2, 3, 4, 6, 8, 0,
-      0, 1, 2, 3, 4, 6, 7, 0,
-      0, 1, 2, 4, 5, 5, 6, 0,
-      0, 1, 2, 4, 4, 5, 6, 0},
+    { 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      2, 2, 2, 2, 2, 2, 2, 2,
+      3, 3, 4, 4, 3, 3, 4, 4,
+      4, 4, 5, 4, 4, 4, 5, 4,
+      6, 6, 5, 5, 6, 6, 5, 5,
+      8, 7, 6, 6, 8, 7, 6, 6,
+      0, 0, 0, 0, 0, 0, 0, 0},
     // MOEWE
-    { 0, 1, 2, 3, 4, 6, 8, 0,
-      0, 1, 2, 3, 4, 6, 7, 0,
-      0, 1, 2, 4, 4, 5, 6, 0,
-      0, 1, 2, 4, 5, 5, 6, 0},
+    { 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      2, 2, 2, 2, 2, 2, 2, 2,
+      3, 3, 4, 4, 3, 3, 4, 4,
+      4, 4, 4, 5, 4, 4, 5, 4,
+      6, 6, 5, 5, 6, 6, 5, 5,
+      8, 7, 6, 6, 8, 7, 6, 6,
+      0, 0, 0, 0, 0, 0, 0, 0},
     // SEESTERN
-    { 0, 1, 2, 3, 4, 6, 8, 0,
-      0, 1, 2, 3, 4, 6, 7, 0,
-      0, 1, 2, 4, 5, 5, 6, 0,
-      0, 1, 2, 3, 5, 5, 6, 0},
+    { 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      2, 2, 2, 2, 2, 2, 2, 2,
+      3, 3, 4, 3, 3, 3, 4, 4,
+      4, 4, 5, 5, 4, 4, 5, 4,
+      6, 6, 5, 5, 6, 6, 5, 5,
+      8, 7, 6, 6, 8, 7, 6, 6,
+      0, 0, 0, 0, 0, 0, 0, 0},
     // ROBBE
-    { 0, 1, 2, 2, 2, 2, 1, 0,
-      1, 2, 4, 4, 4, 4, 2, 1,
-      2, 4, 6, 6, 6, 6, 4, 2,
-      2, 4, 6, 6, 6, 6, 4, 2}
+    { 0, 1, 2, 2, 0, 0, 0, 0,
+      1, 2, 4, 4, 1, 1, 1, 1,
+      2, 4, 6, 6, 2, 2, 2, 2,
+      2, 4, 6, 6, 3, 3, 4, 4,
+      2, 4, 6, 6, 4, 4, 5, 4,
+      2, 4, 6, 6, 6, 6, 5, 5,
+      1, 2, 4, 4, 8, 7, 6, 6,
+      0, 1, 2, 2, 0, 0, 0, 0}
 };
 
 int scoreEvaluation(const GameState &gameState) {
@@ -31,7 +47,6 @@ int scoreEvaluation(const GameState &gameState) {
 
 int pieceSquareEvaluation(int square, const Field &field) {
     Position pos{square};
-    if (pos.coords.y >= 4) pos.coords.y = 7 - pos.coords.y;
 
     if (field.team == ONE) {
         return pieceSquareTable[field.pieceType][pos.square];
@@ -39,13 +54,6 @@ int pieceSquareEvaluation(int square, const Field &field) {
         pos.coords.x = 7 - pos.coords.x;
         return -pieceSquareTable[field.pieceType][pos.square];
     }
-}
-
-int stackEvaluation(const Field &field) {
-    if (field.stacked) {
-        return (field.team == ONE) ? 10 : -10;
-    }
-    return 0;
 }
 
 int Evaluation::evaluate(const GameState &gameState) {
@@ -59,7 +67,6 @@ int Evaluation::evaluate(const GameState &gameState) {
         if (!field.occupied) continue;
 
         value += pieceSquareEvaluation(square, field);
-        value += stackEvaluation(field);
     }
 
     if (gameState.turn % 2 == TWO) value = -value;

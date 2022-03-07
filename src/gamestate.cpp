@@ -57,9 +57,7 @@ GameState::GameState(const std::string &fen) : GameState() {
         }
 
         if (c == '.') {
-            position.coords.y--;
-            board[position.square].stacked = true;
-            position.coords.y++;
+            board[position.square - 1].stacked = true;
             continue;
         }
 
@@ -103,8 +101,8 @@ std::vector<Move> GameState::getPossibleMoves() const {
 
     const int team = turn % 2;
 
-    const Direction forward = team ? DOWN : UP;
-    const uint8_t oppBaseline = team ? 0 : 7;
+    const Direction forward = (team == ONE) ? RIGHT : LEFT;
+    const uint8_t oppBaseline = (team == ONE) ? 7 : 0;
 
     for (int square = 0; square < FIELD_COUNT; ++square) {
         const Field &field = board[square];
@@ -117,43 +115,43 @@ std::vector<Move> GameState::getPossibleMoves() const {
         switch (field.pieceType) {
             case HERZMUSCHEL:
                 if (pos.coords.x != oppBaseline) {
-                    if (pos.coords.y < 7) pushMove(forward + LEFT);
-                    if (pos.coords.y > 0) pushMove(forward + RIGHT);
+                    if (pos.coords.y < 7) pushMove(forward + DOWN);
+                    if (pos.coords.y > 0) pushMove(forward + UP);
                 }
                 break;
             case MOEWE:
-                if (pos.coords.x < 7) pushMove(UP);
-                if (pos.coords.x > 0) pushMove(DOWN);
-                if (pos.coords.y < 7) pushMove(LEFT);
-                if (pos.coords.y > 0) pushMove(RIGHT);
+                if (pos.coords.x < 7) pushMove(RIGHT);
+                if (pos.coords.x > 0) pushMove(LEFT);
+                if (pos.coords.y < 7) pushMove(DOWN);
+                if (pos.coords.y > 0) pushMove(UP);
                 break;
             case SEESTERN:
                 if (pos.coords.x != oppBaseline) pushMove(forward);
                 if (pos.coords.x < 7) {
-                    if (pos.coords.y < 7) pushMove(UP + LEFT);
-                    if (pos.coords.y > 0) pushMove(UP + RIGHT);
+                    if (pos.coords.y < 7) pushMove(RIGHT + DOWN);
+                    if (pos.coords.y > 0) pushMove(RIGHT + UP);
                 }
                 if (pos.coords.x > 0) {
-                    if (pos.coords.y < 7) pushMove(DOWN + LEFT);
-                    if (pos.coords.y > 0) pushMove(DOWN + RIGHT);
+                    if (pos.coords.y < 7) pushMove(LEFT + DOWN);
+                    if (pos.coords.y > 0) pushMove(LEFT + UP);
                 }
                 break;
             case ROBBE:
                 if (pos.coords.x < 6) {
-                    if (pos.coords.y < 7) pushMove(UP + UP + LEFT);
-                    if (pos.coords.y > 0) pushMove(UP + UP + RIGHT);
+                    if (pos.coords.y < 7) pushMove(RIGHT + RIGHT + DOWN);
+                    if (pos.coords.y > 0) pushMove(RIGHT + RIGHT + UP);
                 }
                 if (pos.coords.x > 1) {
-                    if (pos.coords.y < 7) pushMove(DOWN + DOWN + LEFT);
-                    if (pos.coords.y > 0) pushMove(DOWN + DOWN + RIGHT);
+                    if (pos.coords.y < 7) pushMove(LEFT + LEFT + DOWN);
+                    if (pos.coords.y > 0) pushMove(LEFT + LEFT + UP);
                 }
                 if (pos.coords.x < 7) {
-                    if (pos.coords.y < 6) pushMove(UP + LEFT + LEFT);
-                    if (pos.coords.y > 1) pushMove(UP + RIGHT + RIGHT);
+                    if (pos.coords.y < 6) pushMove(RIGHT + DOWN + DOWN);
+                    if (pos.coords.y > 1) pushMove(RIGHT + UP + UP);
                 }
                 if (pos.coords.x > 0) {
-                    if (pos.coords.y < 6) pushMove(DOWN + LEFT + LEFT);
-                    if (pos.coords.y > 1) pushMove(DOWN + RIGHT + RIGHT);
+                    if (pos.coords.y < 6) pushMove(LEFT + DOWN + DOWN);
+                    if (pos.coords.y > 1) pushMove(LEFT + UP + UP);
                 }
                 break;
         }
@@ -163,8 +161,8 @@ std::vector<Move> GameState::getPossibleMoves() const {
 }
 
 bool GameState::isOver() const {
-    if (turn > TURN_LIMIT) return true;
     if (turn % 2) return false;
+    if (turn >= TURN_LIMIT) return true;
     for (int team = 0; team < TEAM_COUNT; ++team) {
         if (score[team] >= MAX_SCORE) return true;
     }
@@ -187,7 +185,9 @@ Team GameState::calcWinner() const {
 
         const Position pos{square};
 
-        dist[field.team].push_back(field.team ? 7 - pos.coords.x : pos.coords.x);
+        dist[field.team].push_back(
+            (field.team == ONE) ? pos.coords.x : (7 - pos.coords.x)
+        );
     }
 
     std::sort(dist[ONE].begin(), dist[ONE].end(), std::greater<>());
@@ -208,7 +208,7 @@ SaveState GameState::makeMove(const Move &move) {
     Field &to = board[move.to.square];
 
     int team = turn % 2;
-    uint8_t oppBaseline = team ? 0 : 7;
+    uint8_t oppBaseline = (team == ONE) ? 7 : 0;
 
     assert(from.occupied);
     assert(from.team == team);
