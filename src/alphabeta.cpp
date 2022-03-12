@@ -34,6 +34,53 @@ int evaluateWinner(const GameState &gameState) {
     return -INT_MAX;
 }
 
+bool isTactivalMove(const GameState &gameState, const Move &move) {
+    const Field &from = gameState.board[move.from.square];
+    const Field &to = gameState.board[move.to.square];
+
+    if (to.occupied && (to.stacked || from.stacked)) return true;
+
+    if (from.pieceType == ROBBE) return false;
+    uint8_t oppBaseline = (gameState.turn % 2 == ONE) ? 7 : 0;
+    if (move.to.coords.x == oppBaseline) return true;
+
+    return false;
+}
+
+int AlphaBeta::quiesce(int alpha, int beta) {
+    assert(alpha < beta);
+    assert(!gameState.isOver());
+
+    if (checkTimeOut()) return 0;
+
+    int static_evaluation = Evaluation::evaluate(gameState);
+
+    if (static_evaluation >= beta) return beta;
+    if (alpha < static_evaluation) alpha = static_evaluation;
+
+    std::vector<Move> moves = gameState.getPossibleMoves();
+    if (moves.size() == 0) return -INT_MAX;
+
+    for (const Move &move : moves) {
+        if (!isTactivalMove(gameState, move)) continue;
+
+        SaveState saveState = gameState.makeMove(move);
+
+        int score;
+        if (gameState.isOver()) score = -evaluateWinner(gameState);
+        else score = -quiesce(-beta, -alpha);
+
+        gameState.unmakeMove(move, saveState);
+
+        if (timeOut) return 0;
+
+        if (score >= beta) return beta;
+        if (score > alpha) alpha = score;
+    }
+
+    return alpha;
+}
+
 int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
     assert(depth >= 0);
     assert(alpha < beta);
@@ -61,7 +108,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
     assert(alpha < beta);
 
     if (gameState.isOver()) return evaluateWinner(gameState);
-    if (depth <= 0) return Evaluation::evaluate(gameState);
+    if (depth <= 0) return quiesce(alpha, beta);
 
     TranspositionType type = ALPHA;
     Move bestMove;

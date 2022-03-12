@@ -21,6 +21,8 @@ private:
 
     bool checkTimeOut();
 
+    int quiesce(int alpha, int beta);
+
     int alphaBeta(const int depth, int alpha, int beta);
 
     MoveValuePair alphaBetaRoot(const int depth, int alpha, int beta);
