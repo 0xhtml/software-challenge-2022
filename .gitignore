@@ -1,3 +1,5 @@
 /cmake-*/
 /.cache/
 /compile_commands.json
+/server/
+/build.zip
