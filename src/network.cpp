@@ -2,6 +2,7 @@
 
 #include <boost/asio.hpp>
 #include <chrono>
+#include <cstddef>
 #include <pugixml.hpp>
 #include <stdexcept>
 #include <stdio.h>
@@ -12,12 +13,8 @@
 Network::Network(const std::string &host, const int port, const std::string &reservation) {
     boost::asio::ip::tcp::endpoint endpoint;
 
-    if (host == "localhost") {
-        endpoint.address(boost::asio::ip::make_address("127.0.0.1"));
-    } else {
-        boost::asio::ip::tcp::resolver::query query{host, ""};
-        endpoint = *boost::asio::ip::tcp::resolver(ioService).resolve(query);
-    }
+    boost::asio::ip::tcp::resolver::query query{boost::asio::ip::tcp::v4(), host, ""};
+    endpoint = *boost::asio::ip::tcp::resolver(ioService).resolve(query);
 
     endpoint.port(port);
 
