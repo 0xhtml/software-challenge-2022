@@ -28,8 +28,6 @@ public:
 
     GameState();
 
-    GameState(const std::string &fen);
-
     std::vector<Move> getPossibleMoves() const;
 
     bool isOver() const;

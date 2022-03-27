@@ -39,58 +39,6 @@ GameState::GameState() {
     zobrist.team = rand * RANDOM_SEED_A + RANDOM_SEED_B;
 }
 
-GameState::GameState(const std::string &fen) : GameState() {
-    Position position{};
-
-    for (char c : fen) {
-        if (c == ' ') break;
-
-        if (isdigit(c)) {
-            position.coords.y += c - '0';
-            continue;
-        }
-
-        if (c == '/') {
-            position.coords.y = 0;
-            position.coords.x++;
-            continue;
-        }
-
-        if (c == '.') {
-            board[position.square - 1].stacked = true;
-            continue;
-        }
-
-        board[position.square].occupied = true;
-
-        if (isupper(c)) {
-            board[position.square].team = ONE;
-            c = tolower(c);
-        } else {
-            board[position.square].team = TWO;
-        }
-
-        switch (c) {
-            case 'h':
-                board[position.square].pieceType = HERZMUSCHEL;
-                break;
-            case 'm':
-                board[position.square].pieceType = MOEWE;
-                break;
-            case 's':
-                board[position.square].pieceType = SEESTERN;
-                break;
-            case 'r':
-                board[position.square].pieceType = ROBBE;
-                break;
-        }
-
-        position.coords.y++;
-    }
-
-    turn = std::stoi(fen.substr(fen.find(' ')));
-}
-
 #define pushMove(to) \
     if (!board[square + to].occupied || board[square + to].team != team) { \
         moves.push_back({pos, square + to}); \

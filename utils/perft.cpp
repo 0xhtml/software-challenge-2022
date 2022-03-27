@@ -3,20 +3,7 @@
 
 #include "../src/gamestate.hpp"
 #include "../src/types.hpp"
-
-int perft(GameState &gameState, const int depth) {
-    if (depth <= 1) return gameState.getPossibleMoves().size();
-
-    int num = 0;
-
-    for (const Move move : gameState.getPossibleMoves()) {
-        SaveState saveState = gameState.makeMove(move);
-        num += perft(gameState, depth - 1);
-        gameState.unmakeMove(move, saveState);
-    }
-
-    return num;
-}
+#include "helper.hpp"
 
 int main(int argc, char **argv) {
     while (true) {
@@ -25,12 +12,14 @@ int main(int argc, char **argv) {
 
         int a = std::stoi(inp.substr(inp.find_last_of(" ")));
 
-        GameState state{inp.substr(0, inp.find_last_of(" "))};
+        GameState state = Helper::createGameState(inp.substr(0, inp.find_last_of(" ")));
 
-        int g = perft(state, 3);
+        int g = state.getPossibleMoves().size();
 
         if (g != a) {
-            printf("%s -> %i\n", inp.data(), g);
+            printf("!!! %s -> %i\n", inp.data(), g);
+        } else {
+            printf("%s -> ok\n", inp.data());
         }
     }
 
