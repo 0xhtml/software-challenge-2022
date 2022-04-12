@@ -56,14 +56,22 @@ int pieceSquareEvaluation(const int square, const Field &field) {
     }
 }
 
-int Evaluation::evaluate(const GameState &gameState) {
+int evaluateWinner(const GameState &gameState) {
+    Team winner = gameState.calcWinner();
+    if (winner == ONE) return WINNING_SCORE;
+    if (winner == TWO) return -WINNING_SCORE;
+    return 0;
+}
+
+int Evaluation::evaluate(const GameState &gameState, const bool isOver) {
     int value = 0;
+
+    if (isOver) value += evaluateWinner(gameState);
 
     value += scoreEvaluation(gameState);
 
     for (int square = 0; square < FIELD_COUNT; ++square) {
         const Field &field = gameState.board[square];
-
         if (!field.occupied) continue;
 
         value += pieceSquareEvaluation(square, field);

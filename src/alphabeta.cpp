@@ -27,14 +27,7 @@ bool AlphaBeta::checkTimeOut() {
     return false;
 }
 
-int evaluateWinner(const GameState &gameState) {
-    Team winner = gameState.calcWinner();
-    if (winner == NO_TEAM) return 0;
-    if (winner == gameState.turn % TEAM_COUNT) return INT_MAX;
-    return -INT_MAX;
-}
-
-bool isTactivalMove(const GameState &gameState, const Move &move) {
+bool isTacticalMove(const GameState &gameState, const Move &move) {
     const Field &from = gameState.board[move.from.square];
     const Field &to = gameState.board[move.to.square];
     const Direction forward = (from.team == ONE) ? RIGHT : LEFT;
@@ -57,21 +50,21 @@ int AlphaBeta::quiesce(int alpha, int beta) {
 
     if (checkTimeOut()) return 0;
 
-    int static_evaluation = Evaluation::evaluate(gameState);
+    int static_evaluation = Evaluation::evaluate(gameState, false);
 
     if (static_evaluation >= beta) return beta;
     if (alpha < static_evaluation) alpha = static_evaluation;
 
     std::vector<Move> moves = gameState.getPossibleMoves();
-    if (moves.size() == 0) return -INT_MAX;
+    if (moves.size() == 0) return -WINNING_SCORE;
 
     for (const Move &move : moves) {
-        if (!isTactivalMove(gameState, move)) continue;
+        if (!isTacticalMove(gameState, move)) continue;
 
         SaveState saveState = gameState.makeMove(move);
 
         int score;
-        if (gameState.isOver()) score = -evaluateWinner(gameState);
+        if (gameState.isOver()) score = -Evaluation::evaluate(gameState, true);
         else score = -quiesce(-beta, -alpha);
 
         gameState.unmakeMove(move, saveState);
@@ -111,7 +104,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
 
     assert(alpha < beta);
 
-    if (gameState.isOver()) return evaluateWinner(gameState);
+    if (gameState.isOver()) return Evaluation::evaluate(gameState, true);
     if (depth <= 0) return quiesce(alpha, beta);
 
     TranspositionType type = ALPHA;
@@ -138,7 +131,7 @@ int AlphaBeta::alphaBeta(const int depth, int alpha, int beta) {
 
     std::vector<Move> moves = gameState.getPossibleMoves();
 
-    if (moves.size() == 0) return -INT_MAX;
+    if (moves.size() == 0) return -WINNING_SCORE;
 
     std::sort(moves.begin(), moves.end(), [&](const Move &a, const Move &b){
         return history[gameState.board[a.from.square].pieceType][a.to.square]
@@ -217,9 +210,7 @@ Move AlphaBeta::iterativeDeepening(const Time start) {
 
         printf("DEBUG: d=%i s=%i\n", depth, moveValuePair.value);
 
-        if (timeOut || moveValuePair.value >= INT_MAX) {
-            break;
-        }
+        if (timeOut) break;
     }
 
     assert(bestMove != Move{});
