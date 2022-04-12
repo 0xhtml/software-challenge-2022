@@ -37,8 +37,12 @@ int evaluateWinner(const GameState &gameState) {
 bool isTactivalMove(const GameState &gameState, const Move &move) {
     const Field &from = gameState.board[move.from.square];
     const Field &to = gameState.board[move.to.square];
+    const Direction forward = (from.team == ONE) ? RIGHT : LEFT;
 
     if (to.occupied && (to.stacked || from.stacked)) return true;
+
+    if (from.pieceType == HERZMUSCHEL && gameState.board [move.to.square +  forward].pieceType == MOEWE && 
+        gameState.board [move.to.square +  forward].team != from.team) return true;
 
     if (from.pieceType == ROBBE) return false;
     uint8_t oppBaseline = (gameState.turn % 2 == ONE) ? 7 : 0;
