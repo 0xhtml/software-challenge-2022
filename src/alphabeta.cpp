@@ -28,18 +28,17 @@ bool AlphaBeta::checkTimeOut() {
 }
 
 bool isTacticalMove(const GameState &gameState, const Move &move) {
-    const Field &from = gameState.board[move.from.square];
     const Field &to = gameState.board[move.to.square];
+    if (to.occupied) return true;
+
+    const Field &from = gameState.board[move.from.square];
+    const int oppBaseline = (from.team == ONE) ? 7 : 0;
+    if (from.pieceType == ROBBE && move.to.coords.x == oppBaseline) return true;
+
     const Direction forward = (from.team == ONE) ? RIGHT : LEFT;
-
-    if (to.occupied && (to.stacked || from.stacked)) return true;
-
-    if (from.pieceType == HERZMUSCHEL && gameState.board [move.to.square +  forward].pieceType == MOEWE && 
-        gameState.board [move.to.square +  forward].team != from.team) return true;
-
-    if (from.pieceType == ROBBE) return false;
-    uint8_t oppBaseline = (gameState.turn % 2 == ONE) ? 7 : 0;
-    if (move.to.coords.x == oppBaseline) return true;
+    const Field &front = gameState.board[move.from.square + forward];
+    if (from.pieceType == HERZMUSCHEL && front.pieceType == MOEWE
+            && front.team != from.team) return true;
 
     return false;
 }
