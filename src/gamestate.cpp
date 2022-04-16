@@ -36,7 +36,6 @@ GameState::GameState() {
         rand = rand * RANDOM_SEED_A + RANDOM_SEED_B;
         zobrist.turn[turn] = rand;
     }
-    zobrist.team = rand * RANDOM_SEED_A + RANDOM_SEED_B;
 }
 
 #define pushMove(to) \
@@ -62,10 +61,9 @@ std::vector<Move> GameState::getPossibleMoves() const {
 
         switch (field.pieceType) {
             case HERZMUSCHEL:
-                if (pos.coords.x != oppBaseline) {
-                    if (pos.coords.y < 7) pushMove(forward + DOWN);
-                    if (pos.coords.y > 0) pushMove(forward + UP);
-                }
+                assert(pos.coords.x != oppBaseline);
+                if (pos.coords.y < 7) pushMove(forward + DOWN);
+                if (pos.coords.y > 0) pushMove(forward + UP);
                 break;
             case MOEWE:
                 if (pos.coords.x < 7) pushMove(RIGHT);
@@ -74,7 +72,8 @@ std::vector<Move> GameState::getPossibleMoves() const {
                 if (pos.coords.y > 0) pushMove(UP);
                 break;
             case SEESTERN:
-                if (pos.coords.x != oppBaseline) pushMove(forward);
+                assert(pos.coords.x != oppBaseline);
+                pushMove(forward);
                 if (pos.coords.x < 7) {
                     if (pos.coords.y < 7) pushMove(RIGHT + DOWN);
                     if (pos.coords.y > 0) pushMove(RIGHT + UP);
@@ -108,8 +107,9 @@ std::vector<Move> GameState::getPossibleMoves() const {
     return moves;
 }
 
+
 bool GameState::isOver() const {
-    if (turn % 2) return false;
+    if (turn % 2 == TWO) return false;
     if (turn >= TURN_LIMIT) return true;
     for (int team = 0; team < TEAM_COUNT; ++team) {
         if (score[team] >= MAX_SCORE) return true;
@@ -200,7 +200,6 @@ SaveState GameState::makeMove(const Move &move) {
     hash ^= zobrist.turn[turn];
     ++turn;
     hash ^= zobrist.turn[turn];
-    hash ^= zobrist.team;
 
     assert(hash != saveState.hash);
 

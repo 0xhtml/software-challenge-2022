@@ -17,7 +17,6 @@ private:
         uint64_t stacked[FIELD_COUNT];
         uint64_t score[TEAM_COUNT][MAX_SCORE];
         uint64_t turn[TURN_LIMIT];
-        uint64_t team;
     } zobrist;
 
 public:
