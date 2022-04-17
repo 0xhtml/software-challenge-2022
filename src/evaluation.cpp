@@ -56,6 +56,24 @@ int pieceSquareEvaluation(const int square, const Field &field) {
     }
 }
 
+int pieceDistanceValue(const GameState &gameState) {
+    int maxDist[TEAM_COUNT]{0};
+
+    for (int square = 0; square < FIELD_COUNT; square++) {
+        const Field &field = gameState.board[square];
+
+        if (!field.occupied) continue;
+        if (field.pieceType == ROBBE) continue;
+
+        const Position pos{square};
+        const int dist = (field.team == ONE) ? pos.coords.x : (7 - pos.coords.x);
+
+        if (dist > maxDist[field.team]) maxDist[field.team] = dist;
+    }
+
+    return maxDist[ONE] - maxDist[TWO];
+}
+
 int evaluateWinner(const GameState &gameState) {
     Team winner = gameState.calcWinner();
     if (winner == ONE) return WINNING_SCORE;
@@ -69,12 +87,14 @@ int Evaluation::evaluate(const GameState &gameState, const bool isOver) {
     if (isOver) value += evaluateWinner(gameState);
 
     value += scoreEvaluation(gameState);
+    value += pieceDistanceValue(gameState);
 
     for (int square = 0; square < FIELD_COUNT; ++square) {
         const Field &field = gameState.board[square];
         if (!field.occupied) continue;
 
         value += pieceSquareEvaluation(square, field);
+        if (field.stacked) value += field.team == ONE ? 1 : -1;
     }
 
     if (gameState.turn % 2 == TWO) value = -value;

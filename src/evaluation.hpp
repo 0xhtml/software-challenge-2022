@@ -6,5 +6,5 @@
 
 class Evaluation {
 public:
-    static int evaluate(const GameState &gameState, bool isOver);
+    static int evaluate(const GameState &gameState, const bool isOver);
 };
