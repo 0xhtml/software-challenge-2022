@@ -39,19 +39,6 @@ if(NOT WIN32)
     target_link_libraries(main pthread)
 endif()
 
-add_executable(perft utils/perft.cpp src/gamestate.cpp)
-
-if(NOT WIN32)
-    add_executable(elotest utils/elotest.cpp src/alphabeta.cpp src/evaluation.cpp src/gamestate.cpp src/transpositiontable.cpp)
-    target_link_libraries(elotest pthread)
-    set_target_properties(elotest PROPERTIES COMPILE_FLAGS -fno-access-control)
-endif()
-
-add_executable(crosstest utils/crosstest.cpp src/gamestate.cpp)
-if(NOT WIN32)
-    target_link_libraries(crosstest pthread)
-endif()
-
 if(NOT WIN32)
     add_executable(bench utils/bench.cpp src/alphabeta.cpp src/evaluation.cpp src/gamestate.cpp src/transpositiontable.cpp)
     target_link_libraries(bench benchmark)

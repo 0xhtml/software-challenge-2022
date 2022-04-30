@@ -2,23 +2,11 @@
 
 #include <fstream>
 #include <string>
+#include <random>
+#include <assert.h>
 
-#include "players/material.hpp"
-#include "players/mauer.hpp"
-#include "players/minimus.hpp"
-#include "players/queren.hpp"
-#include "players/random.hpp"
-
-#define PLAYER_COUNT 5
-#define NEW_PLAYER(v, i) \
-    Player* v; \
-    if (i == 0) v = new Material{gameState, mt19937}; \
-    else if (i == 1) v = new Mauer{gameState, mt19937}; \
-    else if (i == 2) v = new Minimus{gameState, mt19937}; \
-    else if (i == 3) v = new Queren{gameState, mt19937}; \
-    else v = new Random{gameState, mt19937}
-#define PLAYER_NAMES(v) \
-    std::vector<std::string> v{"Material", "Mauer", "Minimus", "Queren", "Random"};
+#include "../src/gamestate.hpp"
+#include "../src/types.hpp"
 
 class Helper {
 public:
@@ -151,63 +139,5 @@ public:
         }
 
         return createGameState(fen);
-    }
-
-    static Team playGame(GameState &gameState, Player* one, Player* two, std::ofstream& log) {
-        Team winner = NO_TEAM;
-
-        std::vector<std::string> strs{};
-
-        while (!gameState.isOver()) {
-            if (gameState.getPossibleMoves().size() == 0) {
-                if (gameState.turn % 2 == ONE) winner = ONE;
-                else winner = TWO;
-
-                break;
-            }
-
-            Move move;
-
-            if (gameState.turn % 2 == ONE) {
-                move = one->run();
-            } else {
-                move = two->run();
-            }
-
-            gameState.makeMove(move);
-
-            std::string str = boardToString(gameState);
-
-            str.push_back(' ');
-            str.append(std::to_string(gameState.score[ONE]));
-
-            str.push_back('-');
-            str.append(std::to_string(gameState.score[TWO]));
-
-            str.push_back(' ');
-            str.append(std::to_string(gameState.turn));
-
-            strs.push_back(str);
-        }
-
-        if (winner == NO_TEAM) winner = gameState.calcWinner();
-
-        for (std::string str : strs) {
-            log << str;
-            log << " ";
-            switch (winner) {
-                case ONE:
-                    log << 1;
-                    break;
-                case TWO:
-                    log << 0;
-                    break;
-                case NO_TEAM:
-                    log << 0.5;
-            }
-            log << std::endl;
-        }
-
-        return winner;
     }
 };
